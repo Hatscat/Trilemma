@@ -1,0 +1,403 @@
+/* Print layouts for the tabletop edition. All sizes are real-world millimeters on A4 paper. */
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #1d2433;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.page {
+  position: relative;
+  width: 210mm;
+  height: 297mm;
+  overflow: hidden;
+  break-after: page;
+}
+
+.page:last-child {
+  break-after: auto;
+}
+
+.sheet-title {
+  margin: 0;
+  font-size: 15pt;
+  font-weight: 800;
+  text-align: center;
+}
+
+.sheet-help {
+  margin: 2mm auto 0;
+  max-width: 170mm;
+  font-size: 9.5pt;
+  line-height: 1.35;
+  text-align: center;
+  color: #4b5565;
+}
+
+.sheet-section {
+  margin: 8mm 0 3mm;
+  font-size: 11pt;
+  font-weight: 800;
+  text-align: center;
+}
+
+.footer {
+  position: absolute;
+  bottom: 6mm;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 7pt;
+  color: #9aa3b2;
+}
+
+.cut {
+  border: 0.3mm dashed #8f98a8;
+}
+
+/* ------------------------------------------------------------------ Cards */
+
+[data-group="position"] {
+  --group: #4a86e8;
+}
+
+[data-group="shade"] {
+  --group: #b9853a;
+}
+
+[data-group="relation"] {
+  --group: #17a596;
+}
+
+[data-group="expert"] {
+  --group: #d6457a;
+}
+
+.card {
+  position: absolute;
+  width: 63mm;
+  height: 88mm;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: inset 0 0 0 0.2mm #c9ced6;
+}
+
+.card-band {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 7mm;
+  padding: 0 3.5mm;
+  background: var(--group);
+  color: #fff;
+  font-size: 8.5pt;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.card-glyph svg {
+  display: block;
+  width: 55mm;
+  height: 36.67mm;
+  margin: 5mm auto 0;
+}
+
+.card-caption {
+  margin: 4mm 4mm 0;
+  font-size: 11.5pt;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.card-family {
+  position: absolute;
+  left: 3mm;
+  right: 3mm;
+  bottom: 3.5mm;
+  margin: 0;
+  font-size: 6.5pt;
+  text-align: center;
+  color: #7a8394;
+}
+
+.card.back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3mm;
+  background: #cfdcec;
+  box-shadow: none;
+}
+
+.back-characters {
+  display: flex;
+  gap: 1.5mm;
+}
+
+.back-characters svg {
+  width: 13mm;
+  height: 13mm;
+}
+
+.back-title {
+  padding: 1mm 4mm;
+  border-radius: 2mm;
+  background: #15304d;
+  color: #fff;
+  font-size: 15pt;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.crop {
+  position: absolute;
+  background: #4b5565;
+}
+
+/* ------------------------------------------------------------------ Board */
+
+.board-page {
+  padding-top: 18mm;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: 10mm repeat(3, 58mm);
+  grid-template-rows: 10mm repeat(3, 58mm);
+  width: max-content;
+  margin: 10mm auto 0;
+}
+
+.board-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18pt;
+  font-weight: 800;
+  color: #29497a;
+}
+
+.board-cells {
+  grid-column: 2 / span 3;
+  grid-row: 2 / span 3;
+  display: grid;
+  grid-template-columns: repeat(3, 58mm);
+  grid-template-rows: repeat(3, 58mm);
+  outline: 2mm solid #15304d;
+}
+
+.board-cell {
+  background: #f7eedb;
+  box-shadow: inset 0 0 0 0.25mm #a8916a;
+}
+
+.board-cell.dark {
+  background: #cdb894;
+}
+
+.board-hint {
+  margin: 10mm 0 0;
+  font-size: 12pt;
+  font-weight: 700;
+  text-align: center;
+  color: #29497a;
+}
+
+/* ------------------------------------------------------------- Characters */
+
+.sheet-page {
+  padding: 14mm 15mm 0;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 6mm;
+}
+
+.token {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44mm;
+  height: 44mm;
+}
+
+.token svg {
+  width: 36mm;
+  height: 36mm;
+}
+
+.standee {
+  display: flex;
+  flex-direction: column;
+  width: 42mm;
+  height: 92mm;
+}
+
+.standee-face {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1mm;
+}
+
+.standee-face svg {
+  width: 30mm;
+  height: 30mm;
+}
+
+.standee-face span {
+  font-size: 10pt;
+  font-weight: 800;
+}
+
+.standee-face.flipped {
+  transform: rotate(180deg);
+}
+
+.fold {
+  border-top: 0.4mm dotted #4b5565;
+}
+
+/* ----------------------------------------------------------------- Tokens */
+
+.order-token {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32mm;
+  height: 32mm;
+  border-radius: 50%;
+}
+
+.order-token span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 29mm;
+  height: 29mm;
+  border-radius: 50%;
+  background: #ffc94d;
+  box-shadow: inset 0 0 0 1mm #e0a52a;
+  font-size: 22pt;
+  font-weight: 800;
+  color: #3a2a00;
+}
+
+.bid-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 4mm;
+}
+
+.bid-tile {
+  display: flex;
+  flex-direction: column;
+  width: 19mm;
+  height: 26mm;
+  margin-left: -0.3mm;
+}
+
+.bid-tile::before {
+  content: "";
+  display: block;
+  height: 4mm;
+  background: var(--player);
+}
+
+.bid-tile span {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  font-size: 22pt;
+  font-weight: 800;
+}
+
+/* ------------------------------------------------------------------ Rules */
+
+.rules-doc {
+  padding: 0 4mm;
+  font-size: 10pt;
+  line-height: 1.42;
+}
+
+.rules-header {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  margin-bottom: 2mm;
+}
+
+.rules-header svg {
+  width: 13mm;
+  height: 13mm;
+}
+
+.rules-header h1 {
+  margin: 0;
+  font-size: 26pt;
+  font-weight: 900;
+}
+
+.rules-subtitle {
+  margin: 0 0 4mm;
+  color: #4b5565;
+  font-size: 10.5pt;
+}
+
+.rules-doc h2 {
+  margin: 5mm 0 1.5mm;
+  font-size: 13pt;
+  color: #29497a;
+  break-after: avoid;
+}
+
+.rules-doc p {
+  margin: 0 0 2mm;
+}
+
+.rules-doc ol,
+.rules-doc ul {
+  margin: 0 0 2mm;
+  padding-left: 6mm;
+}
+
+.rules-doc li {
+  margin-bottom: 1.2mm;
+  break-inside: avoid;
+}
+
+.rules-card {
+  float: right;
+  position: relative;
+  width: 63mm;
+  height: 88mm;
+  margin: 0 0 3mm 5mm;
+}
+
+.rules-card .card {
+  top: 0;
+  left: 0;
+}

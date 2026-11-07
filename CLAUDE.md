@@ -78,6 +78,14 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
   counts asserted in `src/core/cards_test.ts`.
 - Keep the deck balanced (same number of true cards for every arrangement). `cards_test.ts` asserts it.
 
+## Printable edition (`print/`)
+
+- `deno task print` renders A4 PDFs per language into `print/pdf/<lang>/` with Playwright, from `texts.ts` (tabletop
+  rules, labels), `templates.ts` (layouts) and `print.css` (sizes in mm).
+- It reuses the app's card catalog, captions (`src/i18n/`) and SVG artwork (`src/ui/`). Regenerate the PDFs after
+  changing any of them, and keep the tabletop rules in `print/texts.ts` in sync with the README.
+- Card sheets: 9 poker-size cards (63 × 88 mm) per page, grid centered so duplex backs line up either way.
+
 ## Commands
 
 ```sh
@@ -87,6 +95,7 @@ deno task e2e       # build + Playwright end-to-end tests (uses the local Google
 deno task check     # fmt --check, lint, type-check
 deno task analyze   # probability analysis (deterministic seed)
 deno task cards     # rule-card catalog (markdown)
+deno task print     # printable edition PDFs
 ```
 
 Before finishing a change, run `deno task check`, `deno task test` and `deno task e2e`.

@@ -21,10 +21,11 @@
     "preview": "deno run -A npm:vite@8.3.6 preview",
     "test": "deno test src/",
     "e2e": "deno task build && deno test -A e2e/",
-    "check": "deno fmt --check && deno lint && deno check src/ analysis/ e2e/ scripts/ vite.config.ts",
+    "check": "deno fmt --check && deno lint && deno check src/ analysis/ e2e/ scripts/ print/ vite.config.ts",
     "analyze": "deno run analysis/analyze.ts",
     "cards": "deno run analysis/analyze.ts cards",
-    "icons": "deno run -A scripts/generate-icons.ts"
+    "icons": "deno run -A scripts/generate-icons.ts",
+    "print": "deno run -A print/generate.ts"
   },
   "fmt": {
     "lineWidth": 120,

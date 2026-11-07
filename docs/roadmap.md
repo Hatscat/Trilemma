@@ -4,6 +4,8 @@
 
 - **v0.1** — Solo PWA: Classic and Challenge modes, offline play, saved game, personal records.
 - **v0.2** — English, French and Spanish; interactive tutorial (3 lessons); deployment to GitHub Pages.
+- **Printable edition, home print** — A4 PDFs in three languages ([print/](../print/)): cards with crop marks and backs,
+  board, characters (tokens and standees), order tokens, bid tiles, tabletop rules.
 
 ## Next (suggested order)
 
@@ -48,27 +50,15 @@ Real-time rooms with friends on their own devices. This needs a server (WebSocke
 for fair ties), for example Deno Deploy with Deno KV, or a hosted realtime database. To consider once table mode has
 been playtested.
 
-### 5. Printable edition (M)
+### 5. Printable edition: professional print (M)
 
-The physical tabletop game, generated from the same sources as the app.
+The home-print edition is done (`deno task print`, see [print/README.md](../print/README.md)). Next steps, once the
+rules and cards are validated in playtests:
 
-- **Contents:**
-  - 91 rule cards (55 base + 36 expert), with the symbol and caption on the front and a common back;
-  - the 3 × 3 board;
-  - 3 character tokens or standees;
-  - order tokens numbered 1 to 8;
-  - bid cards numbered 1 to 9 (one set per player);
-  - a rules leaflet;
-  - all of it in English, French and Spanish.
-- **Two outputs:**
-  - _Home print_: A4 or US Letter sheets with 9 poker-size cards (63 × 88 mm) per page, cut marks and optional duplex
-    backs.
-  - _Professional print_: one card per page with a 3 mm bleed and a safe zone, matching the template of the chosen
-    print-on-demand service.
-- **Technique:** HTML/CSS print templates reusing the SVG artwork (vector, sharp at any size), rendered to PDF with
-  Playwright (`page.pdf()`) in a `deno task print` script. An open-licensed font is embedded so the PDFs look the same
-  everywhere.
-- **Prerequisite:** rules and cards validated in playtests; print service chosen.
+- one card per page with a 3 mm bleed and a safe zone, matching the template of the chosen print-on-demand service;
+- an embedded open-licensed font, so the PDFs look the same whatever machine generates them;
+- US Letter versions of the home-print sheets;
+- optional: a box, a printed rules leaflet, wooden or acrylic characters.
 
 ### Smaller ideas
 

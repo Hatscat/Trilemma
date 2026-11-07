@@ -158,6 +158,7 @@ deno task check     # formatting, lint and type-check
 deno task analyze   # probability analysis (markdown on stdout)
 deno task cards     # rule-card catalog (markdown on stdout)
 deno task icons     # regenerate the app icons from the character artwork
+deno task print     # regenerate the printable edition (PDFs in print/pdf/<lang>/)
 ```
 
 - The end-to-end tests and the icon script use the locally installed **Google Chrome** by default. To use Playwright's
@@ -166,6 +167,12 @@ deno task icons     # regenerate the app icons from the character artwork
 - Add `?seed=<number>` to the URL to make new games deterministic (used by the end-to-end tests).
 - The service worker (`src/sw.ts`) only runs in the production build. It precaches every file and serves the app
   cache-first. Each build gets a new cache version, computed from the file contents.
+
+## Printable edition
+
+Home-print PDFs of the tabletop game, in English, French and Spanish, are in [print/](print/): rule cards with crop
+marks and card backs, the board, the characters (flat tokens and standees), order tokens, bid tiles and the tabletop
+rules. See [print/README.md](print/README.md) for printing and cutting tips.
 
 ## Deployment
 
@@ -201,6 +208,7 @@ public/       web app manifest and icons
 e2e/          Playwright end-to-end tests
 analysis/     probability analysis script (uses src/core)
 scripts/      icon generator
+print/        printable edition: generator (texts, layouts, CSS in mm) and the generated PDFs
 docs/         rule-cards.md (card list and design), math.md (probabilities, choice of n), roadmap.md
 .github/      GitHub Pages deployment workflow
 ```
