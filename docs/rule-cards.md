@@ -1,6 +1,6 @@
 # Rule cards
 
-> **Source of truth:** [`analysis/cards.ts`](../analysis/cards.ts). The [full card list](#full-card-list) at the end of
+> **Source of truth:** [`src/core/cards.ts`](../src/core/cards.ts). The [full card list](#full-card-list) at the end of
 > this file is generated with `deno task cards`. Regenerate it after any change to the catalog.
 
 ## Summary

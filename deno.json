@@ -1,9 +1,42 @@
 {
+  "version": "0.1.0",
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.0",
+    "playwright": "npm:playwright@1.65.0",
+    "vite": "npm:vite@8.3.6"
+  },
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "deno.ns",
+      "esnext"
+    ]
+  },
   "tasks": {
+    "dev": "deno run -A npm:vite@8.3.6",
+    "build": "deno run -A npm:vite@8.3.6 build",
+    "preview": "deno run -A npm:vite@8.3.6 preview",
+    "test": "deno test src/",
+    "e2e": "deno task build && deno test -A e2e/",
+    "check": "deno fmt --check && deno lint && deno check src/ analysis/ e2e/ scripts/ vite.config.ts",
     "analyze": "deno run analysis/analyze.ts",
-    "cards": "deno run analysis/analyze.ts cards"
+    "cards": "deno run analysis/analyze.ts cards",
+    "icons": "deno run -A scripts/generate-icons.ts"
   },
   "fmt": {
-    "lineWidth": 120
+    "lineWidth": 120,
+    "exclude": [
+      "dist/",
+      "node_modules/"
+    ]
+  },
+  "lint": {
+    "exclude": [
+      "dist/",
+      "node_modules/"
+    ]
   }
 }

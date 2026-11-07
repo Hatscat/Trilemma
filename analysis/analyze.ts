@@ -8,8 +8,8 @@
  * Results are deterministic (seeded PRNG).
  */
 
-import { ARRANGEMENTS, darkCount, describeArrangement } from "./model.ts";
-import { buildCatalog, type Card, truthKey } from "./cards.ts";
+import { ARRANGEMENTS, darkCount, describeArrangement } from "../src/core/board.ts";
+import { buildCatalog, type Card, truthKey } from "../src/core/cards.ts";
 
 const SEED = 20261107;
 const DRAW_SAMPLES = 50_000;

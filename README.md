@@ -7,8 +7,8 @@ Three little characters must be placed on a 3 × 3 board. A set of **rule cards*
 each other. Every player races to find **the largest group of rules that can all be true at the same time**, bids that
 number, and must then prove it on the board.
 
-> **Status: design phase.** The rules, the rule-card catalog and the math are written. No game code exists yet (`src/`
-> is empty).
+> **Status: first playable version (v0.1.0).** Solo PWA with the Classic and Challenge modes, installable and playable
+> offline. See [Development](#development) to run it.
 
 ## Inspirations
 
@@ -118,29 +118,60 @@ Mobile first, installable and playable offline.
 - **Challenge** (working name). The game announces the maximum for each round, and the player must find a compatible
   group of that size. Any valid group is accepted, since there are often several.
 
-Cards: a click or a tap on a card zooms in on it so its caption is easy to read.
+In both modes:
+
+- **Placing characters**: tap a character then a cell, or drag it. Tapping an empty cell places the next character
+  waiting. A character placed in the row or column of another one sends it back to the tray.
+- **Cards**: tap a card to select it. Tap its magnifier (or press and hold the card) to zoom in on it and read its
+  caption.
+- **Settings**: base deck (55 cards) or full deck (91 cards), and the Classic timer (off, 1, 2, 3 or 5 minutes).
+- The game in progress is saved on the device, and its clock is paused while the app is in the background.
+- Personal records per mode and deck: fewest rounds and fastest game.
 
 Later ideas: a tutorial, hints (like the light bulb of the inspiration app), a daily puzzle (same draw for everyone),
-local pass-and-play multiplayer (ties broken by lock-in time), and a toggle for the expert deck.
+and local pass-and-play multiplayer (ties broken by lock-in time).
 
 ### Tech stack
 
 - **TypeScript**, strict.
 - **Deno 2** for tests, formatting, linting and the analysis scripts.
-- **Vite or Deno** for the build (to be decided).
-- **No web framework and no game engine.** Only native browser Web APIs: DOM, SVG/Canvas, CSS, Custom Elements, Pointer
-  Events, Service Worker, Web App Manifest, IndexedDB/localStorage.
+- **Vite 8**, run through Deno, for the dev server and the build.
+- **Playwright** (driven from `deno test`) for the end-to-end tests.
+- **No web framework and no game engine.** Only native browser Web APIs: DOM, SVG, CSS, `<dialog>`, Pointer Events,
+  Service Worker, Web App Manifest, localStorage.
+
+## Development
+
+```sh
+deno install        # npm and JSR dependencies (Vite, Playwright, @std/assert)
+deno task dev       # dev server with hot reload
+deno task build     # production build in dist/ (static files, deployable anywhere, works under a sub-path)
+deno task preview   # serve dist/ locally
+deno task test      # unit tests of the game logic
+deno task e2e       # build, then end-to-end tests with Playwright
+deno task check     # formatting, lint and type-check
+deno task analyze   # probability analysis (markdown on stdout)
+deno task cards     # rule-card catalog (markdown on stdout)
+deno task icons     # regenerate the app icons from the character artwork
+```
+
+- The end-to-end tests and the icon script use the locally installed **Google Chrome** by default. To use Playwright's
+  own Chromium instead, install it once with `deno run -A npm:playwright@1.65.0 install chromium` and set
+  `E2E_BROWSER=bundled`. Screenshots of the main screens are written to `e2e/artifacts/`.
+- Add `?seed=<number>` to the URL to make new games deterministic (used by the end-to-end tests).
+- The service worker (`src/sw.ts`) only runs in the production build. It precaches every file and serves the app
+  cache-first. Each build gets a new cache version, computed from the file contents.
 
 ## Repository layout
 
 ```
-analysis/   Deno scripts: board model, rule-card catalog, probability analysis
-docs/       rule-cards.md (full card list and design), math.md (probabilities, choice of n)
-src/        future PWA source (empty for now)
-deno.json   Deno tasks and formatter settings
-```
-
-```sh
-deno task analyze   # probability analysis (markdown on stdout)
-deno task cards     # rule-card catalog (markdown on stdout)
+src/core/     game logic, pure and DOM-free: board, rule cards, solver, game state machine (+ unit tests)
+src/ui/       DOM views: home, game screen, rules, dialogs, SVG artwork, local storage
+src/main.ts   entry point: router, persistence, service worker registration
+src/sw.ts     service worker (offline-first)
+public/       web app manifest and icons
+e2e/          Playwright end-to-end tests
+analysis/     probability analysis script (uses src/core)
+scripts/      icon generator
+docs/         rule-cards.md (full card list and design), math.md (probabilities, choice of n)
 ```

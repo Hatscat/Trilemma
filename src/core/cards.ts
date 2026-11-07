@@ -6,9 +6,10 @@
  * - a tautology (true for all 36 arrangements) or a contradiction (true for none);
  * - a duplicate: true for exactly the same set of arrangements as an earlier card,
  *   even if the wording is different (e.g. "the Star is above the Circle" and
- *   "the Circle is below the Star").
+ *   "the Circle is below the Star");
+ * - part of an excluded family (see `Family.excluded`).
  *
- * Front notation (see docs/rule-cards.md for the visual design):
+ * Front notation used in the docs (see docs/rule-cards.md for the visual design):
  *   ★ ● ■     the Star, the Circle, the Square
  *   (1) (A)   badge "row 1" / "column A"
  *   ▓ ░       dark cell / light cell
@@ -36,60 +37,107 @@ import {
   ORDERED_PAIRS,
   PAIRS,
   ROW_LABELS,
-} from "./model.ts";
+} from "./board.ts";
 
 export type Tier = "base" | "expert";
+
+/** Visual group of a family, used for the card frame color. */
+export type CardGroup = "position" | "shade" | "relation" | "expert";
 
 export interface Family {
   readonly key: string;
   readonly title: string;
   readonly tier: Tier;
+  readonly group: CardGroup;
   /** When set, the cards of this family that survive deduplication are still left out of the deck. */
   readonly excluded?: string;
 }
 
 export const FAMILIES = {
-  ROW: { key: "ROW", title: "Character in a row", tier: "base" },
-  COL: { key: "COL", title: "Character in a column", tier: "base" },
-  CELL: { key: "CELL", title: "Occupied cell (row ↔ column link)", tier: "base" },
-  SHADE: { key: "SHADE", title: "Character on a cell shade", tier: "base" },
-  COUNT: { key: "COUNT", title: "Number of characters on a shade", tier: "base" },
+  ROW: { key: "ROW", title: "Character in a row", tier: "base", group: "position" },
+  COL: { key: "COL", title: "Character in a column", tier: "base", group: "position" },
+  CELL: { key: "CELL", title: "Occupied cell (row ↔ column link)", tier: "base", group: "position" },
+  SHADE: { key: "SHADE", title: "Character on a cell shade", tier: "base", group: "shade" },
+  COUNT: { key: "COUNT", title: "Number of characters on a shade", tier: "base", group: "shade" },
   LINE_SHADE: {
     key: "LINE_SHADE",
     title: "Row/column character on a shade",
     tier: "base",
+    group: "shade",
     excluded:
       'disguised negation ("cell X is empty"), and the only family that makes some arrangements satisfy more cards than others',
   },
-  ABOVE: { key: "ABOVE", title: "Above", tier: "base" },
-  LEFT: { key: "LEFT", title: "Left of", tier: "base" },
-  TOUCH: { key: "TOUCH", title: "Touching at a corner", tier: "base" },
-  ROW_GAP: { key: "ROW_GAP", title: "Row distance", tier: "base" },
-  COL_GAP: { key: "COL_GAP", title: "Column distance", tier: "base" },
-  CROSS_ROW: { key: "CROSS_ROW", title: "Row character left/right of a character", tier: "expert" },
-  CROSS_COL: { key: "CROSS_COL", title: "Column character above/below a character", tier: "expert" },
+  ABOVE: { key: "ABOVE", title: "Above", tier: "base", group: "relation" },
+  LEFT: { key: "LEFT", title: "Left of", tier: "base", group: "relation" },
+  TOUCH: { key: "TOUCH", title: "Touching at a corner", tier: "base", group: "relation" },
+  ROW_GAP: { key: "ROW_GAP", title: "Row distance", tier: "base", group: "relation" },
+  COL_GAP: { key: "COL_GAP", title: "Column distance", tier: "base", group: "relation" },
+  CROSS_ROW: {
+    key: "CROSS_ROW",
+    title: "Row character left/right of a character",
+    tier: "expert",
+    group: "expert",
+  },
+  CROSS_COL: {
+    key: "CROSS_COL",
+    title: "Column character above/below a character",
+    tier: "expert",
+    group: "expert",
+  },
 } as const satisfies Record<string, Family>;
 
-export interface Card {
+/** An element drawn on a card. */
+export type Token =
+  | { readonly kind: "character"; readonly character: number }
+  | { readonly kind: "row"; readonly row: number }
+  | { readonly kind: "column"; readonly col: number }
+  | { readonly kind: "shade"; readonly dark: boolean };
+
+/** Structured description of the symbolic face of a card, used by the renderer. */
+export type Glyph =
+  | { readonly type: "equals"; readonly left: Token; readonly right: Token }
+  | { readonly type: "cell"; readonly row: number; readonly col: number }
+  | { readonly type: "count"; readonly count: number; readonly dark: boolean }
+  | { readonly type: "above"; readonly top: Token; readonly bottom: Token }
+  | { readonly type: "left"; readonly left: Token; readonly right: Token }
+  | { readonly type: "touch"; readonly a: number; readonly b: number }
+  | {
+    readonly type: "gap";
+    readonly axis: "row" | "column";
+    readonly gap: number;
+    readonly a: number;
+    readonly b: number;
+  };
+
+export interface CardDefinition {
   readonly id: string;
   readonly family: Family;
-  /** Symbolic front side (see notation above). */
+  /** Compact symbolic notation (docs). */
   readonly front: string;
-  /** Back side: one simple sentence. */
+  /** Caption: one simple sentence. */
   readonly text: string;
+  readonly glyph: Glyph;
   readonly test: (a: Arrangement) => boolean;
+}
+
+export interface Card extends CardDefinition {
+  /** Printed card number, 1-based, base deck first. */
+  readonly number: number;
 }
 
 const name = (c: number) => `the ${CHARACTERS[c].name}`;
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 const sym = (c: number) => CHARACTERS[c].symbol;
 const key = (c: number) => CHARACTERS[c].key;
+const character = (c: number): Token => ({ kind: "character", character: c });
+const rowToken = (row: number): Token => ({ kind: "row", row });
+const colToken = (col: number): Token => ({ kind: "column", col });
 const SHADES = [
   { key: "DARK", label: "dark", tile: "▓", dark: true },
   { key: "LIGHT", label: "light", tile: "░", dark: false },
 ] as const;
 
-function* generateCandidates(): Generator<Card> {
+function* generateCandidates(): Generator<CardDefinition> {
   const F = FAMILIES;
 
   for (const c of INDICES) {
@@ -99,6 +147,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.ROW,
         front: `${sym(c)} = (${ROW_LABELS[r]})`,
         text: `${cap(name(c))} is in row ${ROW_LABELS[r]}.`,
+        glyph: { type: "equals", left: character(c), right: rowToken(r) },
         test: (a) => a.rows[c] === r,
       };
     }
@@ -111,6 +160,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.COL,
         front: `${sym(c)} = (${COL_LABELS[col]})`,
         text: `${cap(name(c))} is in column ${COL_LABELS[col]}.`,
+        glyph: { type: "equals", left: character(c), right: colToken(col) },
         test: (a) => a.cols[c] === col,
       };
     }
@@ -124,6 +174,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.CELL,
         front: `[${cellLabel(r, col)}]`,
         text: `A character stands on cell ${cellLabel(r, col)}.`,
+        glyph: { type: "cell", row: r, col },
         test: (a) => isOccupied(a, r, col),
       };
     }
@@ -135,6 +186,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.CELL,
         front: `(${ROW_LABELS[r]}) = (${COL_LABELS[col]})`,
         text: `The character in row ${ROW_LABELS[r]} is in column ${COL_LABELS[col]}.`,
+        glyph: { type: "equals", left: rowToken(r), right: colToken(col) },
         test: (a) => a.cols[characterInRow(a, r)] === col,
       };
       yield {
@@ -142,6 +194,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.CELL,
         front: `(${COL_LABELS[col]}) = (${ROW_LABELS[r]})`,
         text: `The character in column ${COL_LABELS[col]} is in row ${ROW_LABELS[r]}.`,
+        glyph: { type: "equals", left: colToken(col), right: rowToken(r) },
         test: (a) => a.rows[characterInColumn(a, col)] === r,
       };
     }
@@ -154,6 +207,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.SHADE,
         front: `${sym(c)} = ${s.tile}`,
         text: `${cap(name(c))} is on a ${s.label} cell.`,
+        glyph: { type: "equals", left: character(c), right: { kind: "shade", dark: s.dark } },
         test: (a) => isOnDark(a, c) === s.dark,
       };
     }
@@ -161,15 +215,22 @@ function* generateCandidates(): Generator<Card> {
 
   // Count rules come before row/column shade rules so the global wording is kept.
   const counts = [
-    { id: "COUNT-LIGHT-2", front: "2 × ░", text: "Exactly two characters are on light cells.", dark: 1 },
-    { id: "COUNT-DARK-3", front: "3 × ▓", text: "All three characters are on dark cells.", dark: 3 },
-    { id: "COUNT-LIGHT-0", front: "0 × ░", text: "No character is on a light cell.", dark: 3 },
-    { id: "COUNT-DARK-1", front: "1 × ▓", text: "Exactly one character is on a dark cell.", dark: 1 },
-    { id: "COUNT-LIGHT-1", front: "1 × ░", text: "Exactly one character is on a light cell.", dark: 2 },
-    { id: "COUNT-LIGHT-3", front: "3 × ░", text: "All three characters are on light cells.", dark: 0 },
+    { id: "COUNT-LIGHT-2", count: 2, dark: false, text: "Exactly two characters are on light cells.", darkCells: 1 },
+    { id: "COUNT-DARK-3", count: 3, dark: true, text: "All three characters are on dark cells.", darkCells: 3 },
+    { id: "COUNT-LIGHT-0", count: 0, dark: false, text: "No character is on a light cell.", darkCells: 3 },
+    { id: "COUNT-DARK-1", count: 1, dark: true, text: "Exactly one character is on a dark cell.", darkCells: 1 },
+    { id: "COUNT-LIGHT-1", count: 1, dark: false, text: "Exactly one character is on a light cell.", darkCells: 2 },
+    { id: "COUNT-LIGHT-3", count: 3, dark: false, text: "All three characters are on light cells.", darkCells: 0 },
   ];
   for (const k of counts) {
-    yield { id: k.id, family: F.COUNT, front: k.front, text: k.text, test: (a) => darkCount(a) === k.dark };
+    yield {
+      id: k.id,
+      family: F.COUNT,
+      front: `${k.count} × ${k.dark ? "▓" : "░"}`,
+      text: k.text,
+      glyph: { type: "count", count: k.count, dark: k.dark },
+      test: (a) => darkCount(a) === k.darkCells,
+    };
   }
 
   for (const s of SHADES) {
@@ -179,6 +240,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.LINE_SHADE,
         front: `(${ROW_LABELS[r]}) = ${s.tile}`,
         text: `The character in row ${ROW_LABELS[r]} is on a ${s.label} cell.`,
+        glyph: { type: "equals", left: rowToken(r), right: { kind: "shade", dark: s.dark } },
         test: (a) => isDark(r, a.cols[characterInRow(a, r)]) === s.dark,
       };
     }
@@ -188,6 +250,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.LINE_SHADE,
         front: `(${COL_LABELS[col]}) = ${s.tile}`,
         text: `The character in column ${COL_LABELS[col]} is on a ${s.label} cell.`,
+        glyph: { type: "equals", left: colToken(col), right: { kind: "shade", dark: s.dark } },
         test: (a) => isDark(a.rows[characterInColumn(a, col)], col) === s.dark,
       };
     }
@@ -199,6 +262,7 @@ function* generateCandidates(): Generator<Card> {
       family: F.ABOVE,
       front: `${sym(x)} ┆ ${sym(y)}`,
       text: `${cap(name(x))} is above ${name(y)}.`,
+      glyph: { type: "above", top: character(x), bottom: character(y) },
       test: (a) => a.rows[x] < a.rows[y],
     };
   }
@@ -208,6 +272,7 @@ function* generateCandidates(): Generator<Card> {
       family: F.LEFT,
       front: `${sym(x)} ┄ ${sym(y)}`,
       text: `${cap(name(x))} is to the left of ${name(y)}.`,
+      glyph: { type: "left", left: character(x), right: character(y) },
       test: (a) => a.cols[x] < a.cols[y],
     };
   }
@@ -218,6 +283,7 @@ function* generateCandidates(): Generator<Card> {
       family: F.ABOVE,
       front: `${sym(y)} ┆ ${sym(x)}`,
       text: `${cap(name(x))} is below ${name(y)}.`,
+      glyph: { type: "above", top: character(y), bottom: character(x) },
       test: (a) => a.rows[x] > a.rows[y],
     };
     yield {
@@ -225,6 +291,7 @@ function* generateCandidates(): Generator<Card> {
       family: F.LEFT,
       front: `${sym(y)} ┄ ${sym(x)}`,
       text: `${cap(name(x))} is to the right of ${name(y)}.`,
+      glyph: { type: "left", left: character(y), right: character(x) },
       test: (a) => a.cols[x] > a.cols[y],
     };
   }
@@ -235,6 +302,7 @@ function* generateCandidates(): Generator<Card> {
       family: F.TOUCH,
       front: `${sym(x)} ⤡ ${sym(y)}`,
       text: `${cap(name(x))} and ${name(y)} touch at a corner.`,
+      glyph: { type: "touch", a: x, b: y },
       test: (a) => Math.abs(a.rows[x] - a.rows[y]) === 1 && Math.abs(a.cols[x] - a.cols[y]) === 1,
     };
   }
@@ -248,6 +316,7 @@ function* generateCandidates(): Generator<Card> {
         text: gap === 1
           ? `${cap(name(x))} and ${name(y)} are in neighboring rows.`
           : `${cap(name(x))} and ${name(y)} are two rows apart.`,
+        glyph: { type: "gap", axis: "row", gap, a: x, b: y },
         test: (a) => Math.abs(a.rows[x] - a.rows[y]) === gap,
       };
     }
@@ -261,6 +330,7 @@ function* generateCandidates(): Generator<Card> {
         text: gap === 1
           ? `${cap(name(x))} and ${name(y)} are in neighboring columns.`
           : `${cap(name(x))} and ${name(y)} are two columns apart.`,
+        glyph: { type: "gap", axis: "column", gap, a: x, b: y },
         test: (a) => Math.abs(a.cols[x] - a.cols[y]) === gap,
       };
     }
@@ -275,6 +345,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.CROSS_ROW,
         front: `(${ROW_LABELS[r]}) ┄ ${sym(x)}`,
         text: `The character in row ${ROW_LABELS[r]} is to the left of ${name(x)}.`,
+        glyph: { type: "left", left: rowToken(r), right: character(x) },
         test: (a) => a.cols[characterInRow(a, r)] < a.cols[x],
       };
       yield {
@@ -282,6 +353,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.CROSS_ROW,
         front: `${sym(x)} ┄ (${ROW_LABELS[r]})`,
         text: `The character in row ${ROW_LABELS[r]} is to the right of ${name(x)}.`,
+        glyph: { type: "left", left: character(x), right: rowToken(r) },
         test: (a) => a.cols[characterInRow(a, r)] > a.cols[x],
       };
     }
@@ -293,6 +365,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.CROSS_COL,
         front: `(${COL_LABELS[col]}) ┆ ${sym(x)}`,
         text: `The character in column ${COL_LABELS[col]} is above ${name(x)}.`,
+        glyph: { type: "above", top: colToken(col), bottom: character(x) },
         test: (a) => a.rows[characterInColumn(a, col)] < a.rows[x],
       };
       yield {
@@ -300,6 +373,7 @@ function* generateCandidates(): Generator<Card> {
         family: F.CROSS_COL,
         front: `${sym(x)} ┆ (${COL_LABELS[col]})`,
         text: `The character in column ${COL_LABELS[col]} is below ${name(x)}.`,
+        glyph: { type: "above", top: character(x), bottom: colToken(col) },
         test: (a) => a.rows[characterInColumn(a, col)] > a.rows[x],
       };
     }
@@ -307,14 +381,14 @@ function* generateCandidates(): Generator<Card> {
 }
 
 /** Truth table of a card over the 36 arrangements, as a "0"/"1" string. */
-export function truthKey(card: Card): string {
+export function truthKey(card: CardDefinition): string {
   return ARRANGEMENTS.map((a) => (card.test(a) ? "1" : "0")).join("");
 }
 
 export interface Rejection {
-  readonly card: Card;
+  readonly card: CardDefinition;
   readonly reason: "always true" | "never true" | "duplicate" | "excluded";
-  readonly duplicateOf?: Card;
+  readonly duplicateOf?: CardDefinition;
 }
 
 export interface Catalog {
@@ -324,8 +398,8 @@ export interface Catalog {
 }
 
 export function buildCatalog(): Catalog {
-  const seen = new Map<string, Card>();
-  const kept: Card[] = [];
+  const seen = new Map<string, CardDefinition>();
+  const kept: CardDefinition[] = [];
   const rejected: Rejection[] = [];
   const all = "1".repeat(ARRANGEMENTS.length);
   const none = "0".repeat(ARRANGEMENTS.length);
@@ -342,9 +416,31 @@ export function buildCatalog(): Catalog {
     }
   }
 
+  const ordered = [
+    ...kept.filter((c) => c.family.tier === "base"),
+    ...kept.filter((c) => c.family.tier === "expert"),
+  ];
+  const numbered: Card[] = ordered.map((c, i) => ({ ...c, number: i + 1 }));
   return {
-    base: kept.filter((c) => c.family.tier === "base"),
-    expert: kept.filter((c) => c.family.tier === "expert"),
+    base: numbered.filter((c) => c.family.tier === "base"),
+    expert: numbered.filter((c) => c.family.tier === "expert"),
     rejected,
   };
+}
+
+/** The catalog, built once. */
+export const CATALOG: Catalog = buildCatalog();
+
+const BY_ID = new Map<string, Card>([...CATALOG.base, ...CATALOG.expert].map((c) => [c.id, c]));
+
+export function getCard(id: string): Card {
+  const card = BY_ID.get(id);
+  if (!card) throw new Error(`Unknown card: ${id}`);
+  return card;
+}
+
+export type DeckChoice = "base" | "full";
+
+export function deckCards(deck: DeckChoice): readonly Card[] {
+  return deck === "base" ? CATALOG.base : [...CATALOG.base, ...CATALOG.expert];
 }
