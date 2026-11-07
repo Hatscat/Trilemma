@@ -1,6 +1,7 @@
 /**
- * Generates public/og-image.png (1200 x 630), the preview image shown when the game's link is shared
+ * Generates public/og-image.jpg (1200 x 630), the preview image shown when the game's link is shared
  * (Open Graph / Twitter card). Built from the game's own artwork and card captions.
+ * Kept as a small JPEG on purpose: WhatsApp silently drops preview images that are too heavy (keep it < 150 KB).
  * Usage: deno task og-image
  */
 
@@ -12,7 +13,8 @@ import { glyphSvg } from "../src/ui/glyph.ts";
 import { characterSvg, spriteMarkup } from "../src/ui/sprite.ts";
 import { launchOptions } from "../e2e/browser.ts";
 
-const OUT = "public/og-image.png";
+const OUT = "public/og-image.jpg";
+const MAX_BYTES = 150_000;
 
 // Star on A1, Circle on C2, Square on B3; both cards below are true for this arrangement.
 const PLACEMENT: Record<number, number> = { [cellIndex(0, 0)]: 0, [cellIndex(1, 2)]: 1, [cellIndex(2, 1)]: 2 };
@@ -83,8 +85,10 @@ const browser = await chromium.launch(launchOptions());
 try {
   const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
   await page.setContent(html, { waitUntil: "load" });
-  await page.screenshot({ path: OUT, clip: { x: 0, y: 0, width: 1200, height: 630 } });
-  console.log(`Wrote ${OUT}`);
+  await page.screenshot({ path: OUT, type: "jpeg", quality: 82, clip: { x: 0, y: 0, width: 1200, height: 630 } });
+  const { size } = await Deno.stat(OUT);
+  if (size > MAX_BYTES) throw new Error(`${OUT} is ${size} bytes: too heavy for WhatsApp previews`);
+  console.log(`Wrote ${OUT} (${Math.round(size / 1024)} KB)`);
 } finally {
   await browser.close();
 }

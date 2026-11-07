@@ -1,7 +1,15 @@
 /* Trilemma — mobile-first styles. No external fonts: the app must work offline. */
 
+/* Higher specificity than :root, so it wins whatever the order. */
+:root.is-installed {
+  --edge: 16px;
+}
+
 :root {
   color-scheme: dark;
+  /* Extra margin from the screen edges when the app runs installed (full screen): phones with curved or rounded
+     corners would otherwise hide content near the corners. Set by the "is-installed" class (see main.ts). */
+  --edge: 0px;
   --bg: #15304d;
   --bg-deep: #0d2137;
   --bg-raised: #1e4166;
@@ -67,7 +75,7 @@ p {
 
 .screen {
   min-height: 100dvh;
-  padding-top: env(safe-area-inset-top);
+  padding-top: calc(env(safe-area-inset-top) + var(--edge) / 2);
 }
 
 /* ---------------------------------------------------------------- Buttons */
@@ -134,7 +142,7 @@ p {
   gap: 18px;
   width: min(100%, 480px);
   margin: 0 auto;
-  padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+  padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom) + var(--edge));
 }
 
 .logo {
@@ -298,7 +306,7 @@ p {
 
 .update-toast {
   position: fixed;
-  top: calc(10px + env(safe-area-inset-top));
+  top: calc(10px + env(safe-area-inset-top) + var(--edge));
   left: 50%;
   z-index: 60;
   display: flex;
@@ -409,7 +417,7 @@ p {
 .rules {
   width: min(100%, 720px);
   margin: 0 auto;
-  padding: 0 16px calc(32px + env(safe-area-inset-bottom));
+  padding: 0 16px calc(32px + env(safe-area-inset-bottom) + var(--edge));
 }
 
 .page-header {
@@ -489,7 +497,7 @@ p {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px 0 4px;
+  padding: 6px calc(12px + var(--edge)) 0 calc(4px + var(--edge));
 }
 
 .game-title {
@@ -1045,7 +1053,7 @@ p {
   align-items: center;
   gap: 8px 10px;
   min-height: 64px;
-  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  padding: 10px calc(14px + var(--edge)) calc(10px + env(safe-area-inset-bottom) + var(--edge));
   background: rgba(11, 28, 46, 0.94);
   border-top: 1px solid var(--line);
   backdrop-filter: blur(8px);
@@ -1058,6 +1066,23 @@ p {
 
 .action-bar[data-tone="bad"] {
   box-shadow: inset 0 3px 0 var(--bad);
+}
+
+/* Classic search: the board and the cards are locked, so "Lock in" gently pulses to show what to do next. */
+.action-bar [data-action="lock-in"] {
+  animation: cta-pulse 1.8s ease-out infinite;
+}
+
+@keyframes cta-pulse {
+  0% {
+    box-shadow: 0 3px 0 #c9921a, 0 0 0 0 rgba(255, 201, 77, 0.7);
+  }
+  70% {
+    box-shadow: 0 3px 0 #c9921a, 0 0 0 16px rgba(255, 201, 77, 0);
+  }
+  100% {
+    box-shadow: 0 3px 0 #c9921a, 0 0 0 0 rgba(255, 201, 77, 0);
+  }
 }
 
 .status {

@@ -11,7 +11,7 @@ import { detectLanguage, type Lang, setLanguage, t } from "./i18n/index.ts";
 import { confirmDialog } from "./ui/dialogs.ts";
 import { h } from "./ui/dom.ts";
 import { GameView } from "./ui/game-view.ts";
-import { initInstall, showUpdateNotice } from "./ui/install.ts";
+import { initInstall, isInstalled, showUpdateNotice } from "./ui/install.ts";
 import { renderHome } from "./ui/home.ts";
 import { renderRules } from "./ui/rules.ts";
 import { spriteMarkup } from "./ui/sprite.ts";
@@ -138,6 +138,8 @@ globalThis.addEventListener("hashchange", route);
 route();
 
 initInstall();
+// Installed app (full screen): keep content away from curved screen corners, see `--edge` in styles.css.
+document.documentElement.classList.toggle("is-installed", isInstalled());
 
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
   // A controller change while a previous worker was in charge means a new version was installed.

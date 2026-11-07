@@ -179,7 +179,7 @@ deno task analyze   # probability analysis (markdown on stdout)
 deno task cards     # rule-card catalog (markdown on stdout)
 deno task icons     # regenerate the app icons from the character artwork
 deno task screenshots # build, then capture the screenshots shown in the install dialog (public/screenshots/)
-deno task og-image  # regenerate the link preview image (public/og-image.png, 1200 × 630)
+deno task og-image  # regenerate the link preview image (public/og-image.jpg, 1200 × 630, < 150 KB for WhatsApp)
 deno task print     # regenerate the printable edition (PDFs in print/pdf/<lang>/)
 ```
 
@@ -215,9 +215,9 @@ One-time setup:
    No `CNAME` file is needed in the repository: with a GitHub Actions deployment, the custom domain is set in the
    repository settings.
 
-Shared links show a preview card (title, description and `public/og-image.png`) thanks to the Open Graph and Twitter
+Shared links show a preview card (title, description and `public/og-image.jpg`) thanks to the Open Graph and Twitter
 meta tags in `index.html`. Those tags use absolute URLs on `https://trilemma.lonebee.games/`: update them if the domain
-changes.
+changes. Keep the image light (WhatsApp ignores heavy preview images).
 
 The build uses relative URLs, so the same files work at `https://hatscat.github.io/Trilemma/` and at the root of the
 custom domain.

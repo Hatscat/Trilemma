@@ -115,10 +115,10 @@ Deno.test({
         assertEquals(await page.getAttribute('link[rel="manifest"]', "href"), "./manifest.webmanifest");
         // Link previews: the image URL points to production, the same file is served by this build.
         const ogImage = (await page.getAttribute('meta[property="og:image"]', "content"))!;
-        assertEquals(ogImage, "https://trilemma.lonebee.games/og-image.png");
+        assertEquals(ogImage, "https://trilemma.lonebee.games/og-image.jpg");
         assertEquals(await page.getAttribute('meta[name="twitter:card"]', "content"), "summary_large_image");
-        const preview = await page.evaluate(() => fetch("./og-image.png").then((r) => r.headers.get("content-type")));
-        assertEquals(preview, "image/png");
+        const preview = await page.evaluate(() => fetch("./og-image.jpg").then((r) => r.headers.get("content-type")));
+        assertEquals(preview, "image/jpeg");
         assert(await page.isVisible('[data-mode="classic"]'));
         assert(await page.isVisible('[data-mode="practice"]'));
         await screenshot(page, "01-home");
@@ -144,6 +144,8 @@ Deno.test({
         assertEquals(await page.getAttribute('[data-cell="0"]', "data-occupant"), "null");
         assertEquals(await page.getAttribute(`.card[data-card-id="${cards[0]}"]`, "aria-pressed"), "false");
         assertEquals(await page.locator('[data-action="clear"]').count(), 0);
+        const pulse = await page.$eval('[data-action="lock-in"]', (el) => getComputedStyle(el).animationName);
+        assertEquals(pulse, "cta-pulse", "Lock in pulses while the board is locked");
         await screenshot(page, "02-classic-search");
 
         await lockInBid(page, cards.length);
@@ -507,6 +509,9 @@ Deno.test({
         await page.goto(home);
         await page.waitForSelector("h1");
         assert(await page.isHidden(".install-card"));
+        // Full screen on phones with curved corners: content keeps away from the edges.
+        const edge = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--edge"));
+        assertEquals(edge.trim(), "16px");
         await session.close();
       });
 
