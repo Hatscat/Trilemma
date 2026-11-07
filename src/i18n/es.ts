@@ -201,6 +201,21 @@ export const es: Messages = {
     examplesLabel: "Ejemplos de cartas",
   },
 
+  install: {
+    title: "Instalar la app",
+    text: "Juega a pantalla completa y sin conexión, desde tu pantalla de inicio.",
+    iosSteps: [
+      "Toca el botón Compartir {share} del navegador.",
+      "Elige «Añadir a pantalla de inicio».",
+      "Toca «Añadir»: Trilemma aparecerá con tus otras apps y funcionará sin conexión.",
+    ],
+    close: "OK",
+  },
+  update: {
+    ready: "Hay una nueva versión de Trilemma lista.",
+    reload: "Actualizar",
+  },
+
   tutorial: {
     lesson: (n, total, id) =>
       `Lección ${n}/${total} · ${

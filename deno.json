@@ -25,7 +25,8 @@
     "analyze": "deno run analysis/analyze.ts",
     "cards": "deno run analysis/analyze.ts cards",
     "icons": "deno run -A scripts/generate-icons.ts",
-    "print": "deno run -A print/generate.ts"
+    "print": "deno run -A print/generate.ts",
+    "screenshots": "deno task build && deno run -A scripts/generate-screenshots.ts"
   },
   "fmt": {
     "lineWidth": 120,

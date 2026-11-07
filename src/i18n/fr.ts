@@ -201,6 +201,21 @@ const messages: Messages = {
     examplesLabel: "Exemples de cartes",
   },
 
+  install: {
+    title: "Installer l’app",
+    text: "Joue en plein écran et hors ligne, depuis ton écran d’accueil.",
+    iosSteps: [
+      "Touche le bouton Partager {share} du navigateur.",
+      "Choisis « Sur l’écran d’accueil ».",
+      "Touche « Ajouter » : Trilemma apparaît avec tes autres apps et fonctionne hors ligne.",
+    ],
+    close: "OK",
+  },
+  update: {
+    ready: "Une nouvelle version de Trilemma est prête.",
+    reload: "Mettre à jour",
+  },
+
   tutorial: {
     lesson: (n, total, id) =>
       `Leçon ${n}/${total} · ${

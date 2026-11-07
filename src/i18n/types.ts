@@ -171,6 +171,19 @@ export interface Messages {
     readonly examplesLabel: string;
   };
 
+  // --- Installation and updates --------------------------------------------
+  readonly install: {
+    readonly title: string;
+    readonly text: string;
+    /** iPhone / iPad: installation steps, `{share}` is replaced by the Share icon. */
+    readonly iosSteps: readonly string[];
+    readonly close: string;
+  };
+  readonly update: {
+    readonly ready: string;
+    readonly reload: string;
+  };
+
   // --- Tutorial ------------------------------------------------------------
   readonly tutorial: {
     readonly lesson: (n: number, total: number, id: LessonId) => string;

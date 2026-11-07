@@ -5,7 +5,7 @@
  */
 
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
-import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
+import { type Browser, type BrowserContext, type BrowserContextOptions, chromium, type Page } from "playwright";
 import { ARRANGEMENTS, arrangementToPlacement } from "../src/core/board.ts";
 import { getCard } from "../src/core/cards.ts";
 import { LESSONS } from "../src/core/lessons.ts";
@@ -41,12 +41,18 @@ interface Session {
   close(): Promise<void>;
 }
 
-async function newPage(browser: Browser, viewport = MOBILE, locale = "en-US"): Promise<Session> {
+async function newPage(
+  browser: Browser,
+  viewport = MOBILE,
+  locale = "en-US",
+  options: BrowserContextOptions = {},
+): Promise<Session> {
   const context = await browser.newContext({
     viewport,
     locale,
     deviceScaleFactor: 2,
     hasTouch: viewport.width < 600,
+    ...options,
   });
   const page = await context.newPage();
   const errors: string[] = [];
@@ -423,6 +429,78 @@ Deno.test({
         assertEquals(await page.textContent(".page-header h1"), "How to play");
         assertEquals(await page.locator(".legend-card").count(), 12);
         await screenshot(page, "08-rules");
+        await session.close();
+      });
+
+      await t.step("Chrome considers the app installable, and it launches full screen", async () => {
+        const session = await newPage(browser);
+        const { page } = session;
+        await page.goto(home);
+        await page.waitForFunction(() => navigator.serviceWorker?.controller !== null, null, { timeout: 15_000 });
+        const manifest = await page.evaluate(() => fetch("./manifest.webmanifest").then((r) => r.json()));
+        assertEquals(manifest.display, "fullscreen");
+        assertEquals(manifest.start_url, "./");
+        for (const shot of manifest.screenshots as { src: string }[]) {
+          assertEquals(await page.evaluate((src) => fetch(src).then((r) => r.status), shot.src), 200, shot.src);
+        }
+        const cdp = await session.context.newCDPSession(page);
+        const { installabilityErrors } = await cdp.send("Page.getInstallabilityErrors") as {
+          installabilityErrors: { errorId: string }[];
+        };
+        // Test contexts are incognito-like: that is the only acceptable reason.
+        assertEquals(installabilityErrors.filter((e) => e.errorId !== "in-incognito"), []);
+        await session.close();
+      });
+
+      await t.step("the install button appears when the browser offers installation", async () => {
+        const session = await newPage(browser);
+        const { page } = session;
+        await page.goto(home);
+        assert(await page.isHidden(".install-card"), "nothing to install before the browser offers it");
+        await page.evaluate(() => {
+          const event = Object.assign(new Event("beforeinstallprompt", { cancelable: true }), {
+            prompt: () => {
+              (globalThis as unknown as { prompted: boolean }).prompted = true;
+              return Promise.resolve();
+            },
+            userChoice: Promise.resolve({ outcome: "accepted" }),
+          });
+          globalThis.dispatchEvent(event);
+        });
+        await page.waitForSelector(".install-card", { state: "visible" });
+        await screenshot(page, "14-install");
+        await page.click(".install-card");
+        await page.waitForSelector(".install-card", { state: "hidden" });
+        assertEquals(await page.evaluate(() => (globalThis as unknown as { prompted: boolean }).prompted), true);
+        await session.close();
+      });
+
+      const IPHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 " +
+        "(KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
+
+      await t.step("iPhone users get installation instructions", async () => {
+        const session = await newPage(browser, MOBILE, "fr-FR", { userAgent: IPHONE });
+        const { page } = session;
+        await page.goto(home);
+        await page.click(".install-card");
+        assertEquals(await page.locator(".install-help li").count(), 3);
+        assertEquals(await page.locator(".install-help .inline-icon svg").count(), 1, "the Share icon is shown");
+        assertStringIncludes((await page.textContent(".install-help")) ?? "", "Sur l’écran d’accueil");
+        await screenshot(page, "15-install-iphone");
+        await session.close();
+      });
+
+      await t.step("an installed app offers no installation", async () => {
+        const session = await newPage(browser, MOBILE, "en-US", { userAgent: IPHONE });
+        const { page } = session;
+        await page.addInitScript(() => {
+          const original = globalThis.matchMedia.bind(globalThis);
+          globalThis.matchMedia = (query: string) =>
+            query.includes("display-mode: fullscreen") ? { ...original(query), matches: true } : original(query);
+        });
+        await page.goto(home);
+        await page.waitForSelector("h1");
+        assert(await page.isHidden(".install-card"));
         await session.close();
       });
 

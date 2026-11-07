@@ -34,7 +34,11 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
 - `src/ui/tutorial.ts`: scripted lessons on top of `GameView` (fixed tables from `src/core/lessons.ts`, coach banner,
   `[data-coach]` highlights). Steps complete on state changes or view events (`zoom`, `revealed`).
 - `src/sw.ts`: service worker. It must not import anything. The precache list and the cache version are injected by the
-  Vite plugin in `vite.config.ts`.
+  Vite plugin in `vite.config.ts` (`public/screenshots/` is excluded: those images are only for the install dialog).
+- `src/ui/install.ts`: installation offer (`beforeinstallprompt` on Chromium, instructions on iPhone/iPad, hidden when
+  running installed) and the "new version" banner shown on service worker `controllerchange`.
+- `public/manifest.webmanifest`: `display: fullscreen`. After visible UI changes, refresh the install dialog screenshots
+  with `deno task screenshots`.
 - CSS is linked from `index.html`, not imported from TypeScript (Deno cannot type-check CSS imports).
 - Use `ReturnType<typeof setTimeout>` for timer handles (the Node types are in scope through npm packages).
 

@@ -195,6 +195,21 @@ export const en: Messages = {
     examplesLabel: "Card examples",
   },
 
+  install: {
+    title: "Install the app",
+    text: "Play full screen and offline, from your home screen.",
+    iosSteps: [
+      "Tap the Share button {share} of the browser.",
+      "Choose “Add to Home Screen”.",
+      "Tap “Add”: Trilemma appears with your other apps and works offline.",
+    ],
+    close: "OK",
+  },
+  update: {
+    ready: "A new version of Trilemma is ready.",
+    reload: "Update",
+  },
+
   tutorial: {
     lesson: (n, total, id) =>
       `Lesson ${n}/${total} · ${{ board: "The board", contradictions: "Contradictions", classic: "Classic mode" }[id]}`,

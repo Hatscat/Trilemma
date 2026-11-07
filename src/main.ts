@@ -11,6 +11,7 @@ import { detectLanguage, type Lang, setLanguage, t } from "./i18n/index.ts";
 import { confirmDialog } from "./ui/dialogs.ts";
 import { h } from "./ui/dom.ts";
 import { GameView } from "./ui/game-view.ts";
+import { initInstall, showUpdateNotice } from "./ui/install.ts";
 import { renderHome } from "./ui/home.ts";
 import { renderRules } from "./ui/rules.ts";
 import { spriteMarkup } from "./ui/sprite.ts";
@@ -136,7 +137,14 @@ function route(): void {
 globalThis.addEventListener("hashchange", route);
 route();
 
+initInstall();
+
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  // A controller change while a previous worker was in charge means a new version was installed.
+  const updating = navigator.serviceWorker.controller !== null;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (updating) showUpdateNotice();
+  });
   globalThis.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch((error) => console.error("Service worker:", error));
   });

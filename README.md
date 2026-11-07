@@ -112,6 +112,19 @@ takes 9.3 rounds on average (between 8 and 11).
 
 Mobile first, installable and playable offline.
 
+### Installing the app
+
+- **Android, and Chrome or Edge on a computer**: an **Install the app** card appears on the home screen as soon as the
+  browser offers installation. One tap opens the browser's install dialog. The dialog shows screenshots of the game.
+- **iPhone and iPad**: the same card opens step-by-step instructions (Share button, then "Add to Home Screen").
+- The card is hidden when the app already runs installed, or when the browser cannot install it (it may still offer
+  installation from its own menu).
+- Once installed, Trilemma has its own icon among the other apps and launches **full screen** (manifest
+  `display:
+  fullscreen`; iOS uses its standalone mode). Everything works offline.
+- After a new version is deployed, the installed app shows an **Update** banner. The game in progress is saved, so
+  reloading loses nothing.
+
 ### Modes
 
 - **Classic.** The timer is optional and its duration is chosen before the game. As in the tabletop game, the search
@@ -165,6 +178,7 @@ deno task check     # formatting, lint and type-check
 deno task analyze   # probability analysis (markdown on stdout)
 deno task cards     # rule-card catalog (markdown on stdout)
 deno task icons     # regenerate the app icons from the character artwork
+deno task screenshots # build, then capture the screenshots shown in the install dialog (public/screenshots/)
 deno task print     # regenerate the printable edition (PDFs in print/pdf/<lang>/)
 ```
 
@@ -172,8 +186,8 @@ deno task print     # regenerate the printable edition (PDFs in print/pdf/<lang>
   own Chromium instead, install it once with `deno run -A npm:playwright@1.65.0 install chromium` and set
   `E2E_BROWSER=bundled`. Screenshots of the main screens are written to `e2e/artifacts/`.
 - Add `?seed=<number>` to the URL to make new games deterministic (used by the end-to-end tests).
-- The service worker (`src/sw.ts`) only runs in the production build. It precaches every file and serves the app
-  cache-first. Each build gets a new cache version, computed from the file contents.
+- The service worker (`src/sw.ts`) only runs in the production build. It precaches every file (except the install dialog
+  screenshots) and serves the app cache-first. Each build gets a new cache version, computed from the file contents.
 
 ## Printable edition
 

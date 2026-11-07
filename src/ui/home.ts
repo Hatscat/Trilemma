@@ -3,7 +3,8 @@
 import type { DeckChoice } from "../core/cards.ts";
 import type { GameState, Mode } from "../core/game.ts";
 import { type Lang, LANGS, MESSAGES, t } from "../i18n/index.ts";
-import { formatDuration, h } from "./dom.ts";
+import { formatDuration, h, ICONS } from "./dom.ts";
+import { install, installOption } from "./install.ts";
 import { characterSvg } from "./sprite.ts";
 import { loadRecords, recordKey, type Settings, TIMER_CHOICES } from "./storage.ts";
 
@@ -124,6 +125,19 @@ export function renderHome(
       current.tutorialDone ? null : tutorialCard,
       modeCard("classic", m.home.classicText),
       modeCard("practice", m.home.practiceText),
+    ),
+    // Shown only when the app can be installed from this browser (see install.ts).
+    h(
+      "button",
+      {
+        type: "button",
+        class: "install-card",
+        "data-install": "",
+        hidden: installOption() === null,
+        onclick: () => void install(),
+      },
+      h("span", { class: "install-icon", html: ICONS.install }),
+      h("span", { class: "install-texts" }, h("strong", {}, m.install.title), h("span", {}, m.install.text)),
     ),
     h(
       "section",

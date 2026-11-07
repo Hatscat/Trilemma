@@ -46,6 +46,12 @@ export function prefersReducedMotion(): boolean {
 }
 
 export const ICONS = {
+  /** iOS-style Share icon (square with an arrow), used in the installation instructions. */
+  share: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3.5M8 7l4-4 4 4M8.5 10H6.5a1.5 1.5 0 0 0-1.5 ` +
+    `1.5v8A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5h-2" fill="none" ` +
+    `stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  install: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11M7.5 9.5L12 14l4.5-4.5M5 17v2.5h14V17" ` +
+    `fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   back: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" ` +
     `stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   zoom: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6" fill="none" ` +

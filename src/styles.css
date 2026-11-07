@@ -236,6 +236,85 @@ p {
   color: var(--paper-dim);
 }
 
+.install-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border: 2px dashed rgba(255, 201, 77, 0.6);
+  border-radius: var(--radius);
+  background: rgba(255, 201, 77, 0.08);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.install-card[hidden] {
+  display: none;
+}
+
+.install-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.install-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.install-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.install-texts strong {
+  font-size: 1.1rem;
+}
+
+.install-texts span {
+  color: var(--text-dim);
+}
+
+.install-help ol {
+  margin: 0;
+  padding-left: 1.3em;
+  line-height: 1.6;
+}
+
+.inline-icon svg {
+  width: 1.3em;
+  height: 1.3em;
+  vertical-align: -0.3em;
+  color: #0a84ff;
+}
+
+.update-toast {
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top));
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  padding: 8px 8px 8px 16px;
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--paper-ink);
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: translateX(-50%);
+}
+
 .settings {
   display: grid;
   gap: 12px;
