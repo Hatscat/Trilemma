@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "analyze": "deno run analysis/analyze.ts",
+    "cards": "deno run analysis/analyze.ts cards"
+  },
+  "fmt": {
+    "lineWidth": 120
+  }
+}
