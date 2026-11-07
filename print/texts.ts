@@ -54,7 +54,7 @@ const en: PrintTexts = {
     {
       ul: [
         "55 rule cards (base deck) and 36 expert cards (marked EXPERT), all with the same back.",
-        "1 board: a 3 × 3 grid. Rows are numbered 1 to 3 from top to bottom, columns are lettered A to C from left to right. Corners and center are dark cells, the others are light.",
+        "1 board: a 3 × 3 grid. Rows are numbered 1 to 3 from top to bottom, columns are lettered A to C from left to right. Corners and center are dark cells, with stripes; the others are light.",
         "3 characters: the Star (one eye), the Circle (two eyes) and the Square (three eyes).",
         "8 order tokens, numbered 1 to 8.",
         "Bid tiles numbered 1 to 9, one row per player.",
@@ -136,7 +136,7 @@ const fr: PrintTexts = {
   bidTilesHelp: "Pour annoncer, pose face cachée devant toi la tuile de ton nombre.",
   bidTilesMorePlayers: "Tuiles d’annonce des joueurs 5 à 8 (n’imprime cette page que pour plus de 4 joueurs).",
   rulesTitle: "Trilemma",
-  rulesSubtitle: "Trois personnages. Neuf cases. Trop de règles. · 1 à 8 joueurs · environ 30 minutes",
+  rulesSubtitle: "3 personnages. 9 cases. Tout plein de règles. · 1 à 8 joueurs · environ 30 minutes",
   rules: [
     { h2: "But du jeu" },
     {
@@ -146,7 +146,7 @@ const fr: PrintTexts = {
     {
       ul: [
         "55 cartes règles (paquet de base) et 36 cartes expert (marquées EXPERT), toutes avec le même dos.",
-        "1 plateau : une grille de 3 × 3 cases. Les lignes sont numérotées de 1 à 3 de haut en bas, les colonnes vont de A à C de gauche à droite. Les coins et le centre sont des cases sombres, les autres sont claires.",
+        "1 plateau : une grille de 3 × 3 cases. Les lignes sont numérotées de 1 à 3 de haut en bas, les colonnes vont de A à C de gauche à droite. Les coins et le centre sont des cases sombres, rayées ; les autres sont claires.",
         "3 personnages : l’Étoile (un œil), le Rond (deux yeux) et le Carré (trois yeux).",
         "8 jetons d’ordre, numérotés de 1 à 8.",
         "Des tuiles d’annonce numérotées de 1 à 9, une rangée par joueur.",
@@ -237,7 +237,7 @@ const es: PrintTexts = {
     {
       ul: [
         "55 cartas de reglas (mazo básico) y 36 cartas de experto (marcadas EXPERTO), todas con el mismo dorso.",
-        "1 tablero: una cuadrícula de 3 × 3. Las filas se numeran del 1 al 3 de arriba abajo y las columnas van de la A a la C de izquierda a derecha. Las esquinas y el centro son casillas oscuras; las demás son claras.",
+        "1 tablero: una cuadrícula de 3 × 3. Las filas se numeran del 1 al 3 de arriba abajo y las columnas van de la A a la C de izquierda a derecha. Las esquinas y el centro son casillas oscuras, con rayas; las demás son claras.",
         "3 personajes: la Estrella (un ojo), el Círculo (dos ojos) y el Cuadrado (tres ojos).",
         "8 fichas de orden, numeradas del 1 al 8.",
         "Fichas de anuncio numeradas del 1 al 9, una fila por jugador.",

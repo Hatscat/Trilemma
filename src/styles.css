@@ -524,7 +524,9 @@ p {
 }
 
 .cell.dark {
-  background: var(--cell-dark);
+  /* Stripes as well as color, so dark cells stand out for color-blind players and in grayscale. */
+  background: repeating-linear-gradient(-45deg, rgba(125, 100, 64, 0.38) 0 2.5px, transparent 2.5px 8.5px),
+    var(--cell-dark);
 }
 
 .cell.is-target::after,
@@ -820,6 +822,66 @@ p {
   75% {
     transform: translateX(-3px);
   }
+}
+
+/* ------------------------------------------------------------ Target bar */
+
+.target-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  gap: 6px 12px;
+  margin: 6px 12px 0;
+  padding: 6px 18px 6px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.target-bar[hidden] {
+  display: none;
+}
+
+.target-number {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 1.9rem;
+  font-weight: 900;
+  box-shadow: 0 3px 0 #c9921a;
+}
+
+.target-text {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.target-pips {
+  display: flex;
+  gap: 5px;
+}
+
+.pip {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+  transition: background-color 0.15s ease;
+}
+
+.pip.is-on {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.target-pips.is-over .pip {
+  background: var(--bad);
+  box-shadow: none;
 }
 
 /* --------------------------------------------------------------- Tutorial */

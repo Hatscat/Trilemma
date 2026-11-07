@@ -127,6 +127,8 @@ export class GameView {
   #subtitle = h("span", { class: "round" });
   #stats = h("span", { class: "stats" });
   #clock = h("span", { class: "clock", role: "timer", "aria-live": "off" });
+  #targetBar = h("section", { class: "target-bar", role: "status" });
+  #targetKey = "";
   #board = h("div", { class: "board-cells", role: "group" });
   #tray = h("div", { class: "tray", "data-tray": "", role: "group" });
   #cards = h("div", { class: "cards", role: "group" });
@@ -227,6 +229,7 @@ export class GameView {
       "main",
       { class: `screen game mode-${mode} ${this.#options.className ?? ""}` },
       this.#header,
+      this.#targetBar,
       this.#options.banner ?? null,
       h("section", { class: "play-area" }, h("div", { class: "board-zone" }, board, this.#tray), this.#cards),
       this.#actions,
@@ -326,6 +329,7 @@ export class GameView {
 
   #render(): void {
     this.#renderHeader();
+    this.#renderTarget();
     this.#renderBoard();
     this.#renderTray();
     this.#renderCards();
@@ -345,6 +349,35 @@ export class GameView {
     // Each part stays on one line; the header wraps between parts on narrow screens.
     this.#stats.replaceChildren(
       ...parts.flatMap((part, i) => [i > 0 ? " · " : "", h("span", { class: "nowrap" }, part)]),
+    );
+  }
+
+  /** The number of cards to show: the target in challenge mode, the bid once locked in classic mode. */
+  #renderTarget(): void {
+    const m = t().game;
+    const s = this.#state;
+    const { phase } = s;
+    let number: number | null = null;
+    let label = "";
+    if (s.config.mode === "challenge" && phase.name !== "over") {
+      number = s.target;
+      label = m.cardsToFind(s.target);
+    } else if (phase.name === "demonstrate" || (phase.name === "result" && phase.result.bid !== null)) {
+      number = phase.name === "demonstrate" ? phase.bid : phase.result.bid;
+      label = m.yourBid;
+    }
+    const selected = phase.name === "result" ? (phase.result.outcome === "won" ? number ?? 0 : 0) : s.selection.length;
+    const key = `${number}|${label}|${selected}`;
+    if (key === this.#targetKey) return;
+    this.#targetKey = key;
+    this.#targetBar.hidden = number === null;
+    if (number === null) return;
+    const pips = Array.from({ length: number }, (_, i) => h("span", { class: `pip ${i < selected ? "is-on" : ""}` }));
+    this.#targetBar.setAttribute("aria-label", `${number} ${label} · ${m.selectedOf(selected, number)}`);
+    this.#targetBar.replaceChildren(
+      h("span", { class: "target-number", "aria-hidden": "true" }, number),
+      h("span", { class: "target-text", "aria-hidden": "true" }, label),
+      h("span", { class: `target-pips ${selected > number ? "is-over" : ""}`, "aria-hidden": "true" }, ...pips),
     );
   }
 

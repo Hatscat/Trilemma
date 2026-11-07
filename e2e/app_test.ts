@@ -194,11 +194,14 @@ Deno.test({
         await page.goto(home);
         await page.click('[data-mode="challenge"]');
         assertStringIncludes(await status(page), `Find ${game.target} cards`);
+        assertEquals(await page.textContent(".target-number"), String(game.target), "the target is shown at the top");
+        assertEquals(await page.textContent(".target-text"), "cards to find");
         await placeArrangement(page, arrangement);
         await selectCards(page, [...cards.slice(1), falseCard]);
         await page.click('[data-action="check"]');
         assertStringIncludes(await status(page), `Card ${getCard(falseCard).number} is false`);
         assertStringIncludes((await page.textContent(".stats")) ?? "", "Mistakes 1");
+        assertEquals(await page.locator(".pip.is-on").count(), cards.length);
         await screenshot(page, "05-challenge-mistake");
         await selectCards(page, [falseCard, cards[0]]);
         await page.click('[data-action="check"]');

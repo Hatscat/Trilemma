@@ -49,7 +49,7 @@ const messages: Messages = {
   familyTitle: (key) => FAMILIES[key] ?? key,
 
   home: {
-    tagline: "Trois personnages. Neuf cases. Trop de règles.",
+    tagline: "3 personnages. 9 cases. Tout plein de règles.",
     resume: "Reprendre",
     resumeDetail: (mode, round, won) => `${modeName(mode)} · manche ${round} · ${won} carte${s(won)} gagnée${s(won)}`,
     classicText: "Annonce la taille du plus grand groupe compatible, puis prouve-le. Tout ou rien !",
@@ -104,6 +104,8 @@ const messages: Messages = {
     searchChallenge: (target) => `Trouve ${target} cartes qui peuvent être vraies en même temps.`,
     falseCardRetry: (number) => `La carte ${number} est fausse pour cette disposition. Réessaie !`,
     selectedOf: (selected, target) => `${selected}/${target} sélectionnée${s(selected)}`,
+    cardsToFind: (n) => `carte${s(n)} à trouver`,
+    yourBid: "ton annonce",
     missingPlace: (n) => `encore ${n} personnage${s(n)} à placer`,
     missingSelect: (n) => `encore ${n} à sélectionner`,
     missingUnselect: (n) => `${n} à désélectionner`,
@@ -171,7 +173,7 @@ const messages: Messages = {
       },
       { h2: "Le plateau" },
       {
-        p: "Trois personnages, l’Étoile {star}, le Rond {circle} et le Carré {square}, se placent sur un plateau de 3 × 3 cases : exactement un personnage par ligne et un par colonne. Les lignes sont numérotées de 1 à 3 de haut en bas, les colonnes vont de A à C de gauche à droite. Les coins et le centre sont des cases sombres, les autres sont claires.",
+        p: "Trois personnages, l’Étoile {star}, le Rond {circle} et le Carré {square}, se placent sur un plateau de 3 × 3 cases : exactement un personnage par ligne et un par colonne. Les lignes sont numérotées de 1 à 3 de haut en bas, les colonnes vont de A à C de gauche à droite. Les coins et le centre sont des cases sombres, rayées ; les autres sont claires.",
       },
       {
         p: "Touche un personnage puis une case (ou fais-le glisser). Toucher une case vide y place le prochain personnage en attente. Un personnage posé sur la ligne ou la colonne d’un autre renvoie celui-ci dans la réserve.",

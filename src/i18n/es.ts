@@ -104,6 +104,8 @@ export const es: Messages = {
     searchChallenge: (target) => `Encuentra ${target} cartas que pueden ser verdaderas a la vez.`,
     falseCardRetry: (number) => `La carta ${number} es falsa con esta colocación. ¡Inténtalo de nuevo!`,
     selectedOf: (selected, target) => `${selected}/${target} seleccionada${s(selected)}`,
+    cardsToFind: (n) => `carta${s(n)} por encontrar`,
+    yourBid: "tu anuncio",
     missingPlace: (n) => `coloca ${n} personaje${s(n)} más`,
     missingSelect: (n) => `selecciona ${n} más`,
     missingUnselect: (n) => `quita ${n}`,
@@ -171,7 +173,7 @@ export const es: Messages = {
       },
       { h2: "El tablero" },
       {
-        p: "Tres personajes, la Estrella {star}, el Círculo {circle} y el Cuadrado {square}, se colocan en un tablero de 3 × 3: exactamente un personaje por fila y uno por columna. Las filas se numeran del 1 al 3 de arriba abajo y las columnas van de la A a la C de izquierda a derecha. Las esquinas y el centro son casillas oscuras; las demás son claras.",
+        p: "Tres personajes, la Estrella {star}, el Círculo {circle} y el Cuadrado {square}, se colocan en un tablero de 3 × 3: exactamente un personaje por fila y uno por columna. Las filas se numeran del 1 al 3 de arriba abajo y las columnas van de la A a la C de izquierda a derecha. Las esquinas y el centro son casillas oscuras, con rayas; las demás son claras.",
       },
       {
         p: "Toca un personaje y luego una casilla (o arrástralo). Al tocar una casilla vacía se coloca allí el siguiente personaje en espera. Un personaje colocado en la fila o la columna de otro lo devuelve a la reserva.",

@@ -205,12 +205,24 @@ body {
 }
 
 .board-cell {
+  position: relative;
   background: #f7eedb;
-  box-shadow: inset 0 0 0 0.25mm #a8916a;
 }
 
-.board-cell.dark {
-  background: #cdb894;
+/* Dark cells: striped SVG pattern (see DARK_FILL). */
+.board-cell svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Cell outline, drawn above the pattern. */
+.board-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 0.25mm #a8916a;
 }
 
 .board-hint {

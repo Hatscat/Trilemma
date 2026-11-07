@@ -9,6 +9,8 @@ export const COLORS = {
   cellLight: "#f7eedb",
   cellDark: "#cdb894",
   cellStroke: "#a8916a",
+  /** Stripes drawn on dark cells, so they are not told apart by color alone. */
+  hatch: "#7d6440",
   badge: "#29497a",
   silhouette: "#e3e6ec",
   silhouetteStroke: "#8a93a6",
@@ -69,13 +71,21 @@ export function characterSymbolId(character: number): string {
 
 export const SILHOUETTE_ID = "tri-silhouette";
 
+/** Pattern filling dark cells: the dark color with diagonal stripes (color-blind and grayscale friendly). */
+export const DARK_FILL = "url(#tri-dark)";
+
+const DARK_PATTERN = `<pattern id="tri-dark" patternUnits="userSpaceOnUse" width="6" height="6" ` +
+  `patternTransform="rotate(-45)"><rect width="6" height="6" fill="${COLORS.cellDark}"/>` +
+  `<rect width="1.7" height="6" fill="${COLORS.hatch}" fill-opacity="0.38"/></pattern>`;
+
 /** Markup of the hidden sprite holding every symbol. */
 export function spriteMarkup(): string {
   const symbols = CHARACTER_MARKUP.map((markup, c) =>
     `<symbol id="${characterSymbolId(c)}" viewBox="0 0 100 100">${markup}</symbol>`
   ).join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">` +
-    `${symbols}<symbol id="${SILHOUETTE_ID}" viewBox="0 0 100 100">${SILHOUETTE_MARKUP}</symbol></svg>`;
+    `<defs>${DARK_PATTERN}</defs>${symbols}` +
+    `<symbol id="${SILHOUETTE_ID}" viewBox="0 0 100 100">${SILHOUETTE_MARKUP}</symbol></svg>`;
 }
 
 /** A standalone SVG of one character (e.g. for buttons). */

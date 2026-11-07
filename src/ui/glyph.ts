@@ -5,7 +5,7 @@
 
 import { COL_LABELS, isDark, ROW_LABELS } from "../core/board.ts";
 import type { Glyph, Token } from "../core/cards.ts";
-import { characterSymbolId, COLORS, SILHOUETTE_ID } from "./sprite.ts";
+import { characterSymbolId, COLORS, DARK_FILL, SILHOUETTE_ID } from "./sprite.ts";
 
 const STRIP = "#9fb6cf";
 
@@ -22,7 +22,7 @@ function badge(label: string, x: number, y: number, size: number): string {
 
 function tile(dark: boolean, x: number, y: number, size: number): string {
   return `<rect x="${x + 1}" y="${y + 1}" width="${size - 2}" height="${size - 2}" rx="${size * 0.14}" ` +
-    `fill="${dark ? COLORS.cellDark : COLORS.cellLight}" stroke="${COLORS.cellStroke}" stroke-width="2"/>`;
+    `fill="${dark ? DARK_FILL : COLORS.cellLight}" stroke="${COLORS.cellStroke}" stroke-width="2"/>`;
 }
 
 function token(t: Token, x: number, y: number, size: number): string {
@@ -58,7 +58,7 @@ function miniGrid(x: number, y: number, cell: number, rows: number, cols: number
     for (let c = 0; c < cols; c++) {
       const dark = isDark(r, c);
       out += `<rect x="${x + c * cell}" y="${y + r * cell}" width="${cell}" height="${cell}" ` +
-        `fill="${dark ? COLORS.cellDark : COLORS.cellLight}" stroke="${COLORS.cellStroke}" stroke-width="1"/>`;
+        `fill="${dark ? DARK_FILL : COLORS.cellLight}" stroke="${COLORS.cellStroke}" stroke-width="1"/>`;
     }
   }
   if (highlight) {

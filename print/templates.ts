@@ -7,7 +7,7 @@ import { cellCol, cellRow, COL_LABELS, isDark, ROW_LABELS } from "../src/core/bo
 import { type Card, CATALOG, getCard } from "../src/core/cards.ts";
 import { type Lang, MESSAGES } from "../src/i18n/index.ts";
 import { glyphSvg } from "../src/ui/glyph.ts";
-import { characterSvg, spriteMarkup } from "../src/ui/sprite.ts";
+import { characterSvg, DARK_FILL, spriteMarkup } from "../src/ui/sprite.ts";
 import { type Block, PRINT_TEXTS } from "./texts.ts";
 
 export interface PrintDocument {
@@ -105,9 +105,15 @@ function backSheet(): string {
 // ---------------------------------------------------------------------------
 
 function board(lang: Lang): string {
+  // Dark cells use the app's striped pattern, drawn as vector SVG (120 units = one 58 mm cell).
+  const stripes = `<svg viewBox="0 0 120 120" preserveAspectRatio="none">` +
+    `<rect width="120" height="120" fill="${DARK_FILL}"/></svg>`;
   const cells = Array.from(
     { length: 9 },
-    (_, cell) => `<div class="board-cell ${isDark(cellRow(cell), cellCol(cell)) ? "dark" : "light"}"></div>`,
+    (_, cell) =>
+      isDark(cellRow(cell), cellCol(cell))
+        ? `<div class="board-cell dark">${stripes}</div>`
+        : `<div class="board-cell light"></div>`,
   ).join("");
   const colLabels = COL_LABELS.map((label, c) =>
     `<span class="board-label" style="grid-column:${c + 2};grid-row:1">${label}</span>`

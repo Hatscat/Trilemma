@@ -31,7 +31,7 @@
 - Rows are numbered **1 to 3 from top to bottom**, columns are lettered **A to C from left to right**. A cell is named
   column + row: `C1` is the top-right cell.
 - Shading is a checkerboard with **A1 dark**: the 4 corners and the center are dark (5 cells), the 4 edge-middle cells
-  are light.
+  are light. Dark cells are also striped, everywhere (board, cards, print), so shade never relies on color alone.
 
   ```
       A   B   C
@@ -78,7 +78,7 @@ Suggested frame colors by family group (to make the 3 × 3 layout easy to scan):
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `★` `●` `■`        | The character (its colored shape with its face).                                                                                            |
 | `(1)` `(A)`        | Row / column badge (like the green row and column badges of the board). Left of `=`: "the character in row 1". Right of `=`: "is in row 1". |
-| `▓` `░`            | Dark / light cell tile.                                                                                                                     |
+| `▓` `░`            | Dark (striped) / light cell tile.                                                                                                           |
 | `=`                | "is" / "stands on" (links two attributes of the same character, Einstein-style).                                                            |
 | `[C1]`             | Mini-map of the board with cell C1 highlighted and a generic character silhouette on it.                                                    |
 | `X ┆ Y`            | Vertical strip, X on top and Y at the bottom: X is above Y.                                                                                 |

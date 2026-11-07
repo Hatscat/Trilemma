@@ -99,6 +99,8 @@ export const en: Messages = {
     searchChallenge: (target) => `Find ${target} cards that can all be true at once.`,
     falseCardRetry: (number) => `Card ${number} is false for this arrangement. Try again!`,
     selectedOf: (selected, target) => `${selected}/${target} selected`,
+    cardsToFind: (n) => `${plural(n, "card", "cards")} to find`,
+    yourBid: "your bid",
     missingPlace: (n) => `place ${n} more ${plural(n, "character", "characters")}`,
     missingSelect: (n) => `select ${n} more`,
     missingUnselect: (n) => `unselect ${n}`,
@@ -166,7 +168,7 @@ export const en: Messages = {
       },
       { h2: "The board" },
       {
-        p: "Three characters, the Star {star}, the Circle {circle} and the Square {square}, stand on a 3 × 3 board: exactly one character per row and one per column. Rows are numbered 1 to 3 from top to bottom, columns are lettered A to C from left to right. Corners and center are dark cells, the others are light.",
+        p: "Three characters, the Star {star}, the Circle {circle} and the Square {square}, stand on a 3 × 3 board: exactly one character per row and one per column. Rows are numbered 1 to 3 from top to bottom, columns are lettered A to C from left to right. Corners and center are dark cells, with stripes; the others are light.",
       },
       {
         p: "Tap a character, then a cell (or drag it). Tapping an empty cell places the next character waiting. A character placed in the row or column of another one sends it back.",

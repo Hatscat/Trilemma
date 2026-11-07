@@ -27,7 +27,8 @@ conflicting clues.
 
 - **1 board**: a 3 × 3 grid. Rows are numbered 1 to 3 from top to bottom, columns are lettered A to C from left to
   right. The board is shaded like a checkerboard: the 4 corners and the center are **dark** (5 cells), the 4 edge-middle
-  cells are **light**.
+  cells are **light**. Dark cells also carry diagonal stripes, so they can be told apart without color (color-blind
+  players, grayscale printing).
 
   ```
       A   B   C

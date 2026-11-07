@@ -100,6 +100,10 @@ export interface Messages {
     readonly searchChallenge: (target: number) => string;
     readonly falseCardRetry: (number: number) => string;
     readonly selectedOf: (selected: number, target: number) => string;
+    /** Label next to the big target number (challenge mode). */
+    readonly cardsToFind: (n: number) => string;
+    /** Label next to the big bid number (classic mode, demonstration). */
+    readonly yourBid: string;
     readonly missingPlace: (n: number) => string;
     readonly missingSelect: (n: number) => string;
     readonly missingUnselect: (n: number) => string;
