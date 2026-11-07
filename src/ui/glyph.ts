@@ -16,39 +16,20 @@ function use(id: string, x: number, y: number, size: number): string {
 const round = (n: number) => Number(n.toFixed(2));
 
 /**
- * Row or column badge: a simplified cylinder, lying down for a row (like a row of the board) and standing up for a
- * column, so the two read differently at a glance. The label sits on the body, next to the lighter end cap.
+ * Row or column badge: a bar with rounded ends, lying for a row (like a row of the board) and standing for a column,
+ * so the two read differently at a glance. The label is centered on it.
  */
-function cylinder(label: string, x: number, y: number, size: number, vertical: boolean): string {
+function bar(label: string, x: number, y: number, size: number, vertical: boolean): string {
   const thickness = size * 0.78;
-  const depth = thickness * 0.19; // Depth of the elliptical ends.
-  let body: string;
-  let cap: string;
-  let textX: number;
-  let textY: number;
-  if (vertical) {
-    const left = x + (size - thickness) / 2;
-    const right = left + thickness;
-    body = `M ${round(left)} ${round(y + depth)} V ${round(y + size - depth)} ` +
-      `A ${round(thickness / 2)} ${round(depth)} 0 0 0 ${round(right)} ${round(y + size - depth)} ` +
-      `V ${round(y + depth)} Z`;
-    cap = `<ellipse cx="${round(left + thickness / 2)}" cy="${round(y + depth)}" rx="${round(thickness / 2)}" ` +
-      `ry="${round(depth)}" fill="${COLORS.badgeCap}"/>`;
-    textX = left + thickness / 2;
-    textY = y + depth + (size - depth) / 2;
-  } else {
-    const top = y + (size - thickness) / 2;
-    const bottom = top + thickness;
-    body = `M ${round(x + depth)} ${round(top)} H ${round(x + size - depth)} ` +
-      `A ${round(depth)} ${round(thickness / 2)} 0 0 1 ${round(x + size - depth)} ${round(bottom)} ` +
-      `H ${round(x + depth)} Z`;
-    cap = `<ellipse cx="${round(x + depth)}" cy="${round(top + thickness / 2)}" rx="${round(depth)}" ` +
-      `ry="${round(thickness / 2)}" fill="${COLORS.badgeCap}"/>`;
-    textX = x + depth + (size - depth) / 2;
-    textY = top + thickness / 2;
-  }
-  return `<path d="${body}" fill="${COLORS.badge}"/>${cap}` +
-    `<text x="${round(textX)}" y="${round(textY)}" dy="0.36em" text-anchor="middle" ` +
+  const end = thickness * 0.19; // Depth of the rounded ends.
+  const width = vertical ? thickness : size;
+  const height = vertical ? size : thickness;
+  const left = x + (size - width) / 2;
+  const top = y + (size - height) / 2;
+  return `<rect x="${round(left)}" y="${round(top)}" width="${round(width)}" height="${round(height)}" ` +
+    `rx="${round(vertical ? thickness / 2 : end)}" ry="${round(vertical ? end : thickness / 2)}" ` +
+    `fill="${COLORS.badge}"/>` +
+    `<text x="${round(x + size / 2)}" y="${round(y + size / 2)}" dy="0.36em" text-anchor="middle" ` +
     `font-family="system-ui, sans-serif" font-weight="800" font-size="${round(thickness * 0.66)}" fill="#fff">` +
     `${label}</text>`;
 }
@@ -63,9 +44,9 @@ function token(t: Token, x: number, y: number, size: number): string {
     case "character":
       return use(characterSymbolId(t.character), x, y, size);
     case "row":
-      return cylinder(ROW_LABELS[t.row], x, y, size, false);
+      return bar(ROW_LABELS[t.row], x, y, size, false);
     case "column":
-      return cylinder(COL_LABELS[t.col], x, y, size, true);
+      return bar(COL_LABELS[t.col], x, y, size, true);
     case "shade":
       return tile(t.dark, x, y, size);
   }

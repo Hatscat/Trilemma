@@ -12,8 +12,6 @@ export const COLORS = {
   /** Stripes drawn on dark cells, so they are not told apart by color alone. */
   hatch: "#7d6440",
   badge: "#29497a",
-  /** Lighter end of the row / column cylinders. */
-  badgeCap: "#5a80bb",
   silhouette: "#e3e6ec",
   silhouetteStroke: "#8a93a6",
   characters: [
