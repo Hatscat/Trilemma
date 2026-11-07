@@ -7,8 +7,9 @@ Three little characters must be placed on a 3 × 3 board. A set of **rule cards*
 each other. Every player races to find **the largest group of rules that can all be true at the same time**, bids that
 number, and must then prove it on the board.
 
-> **Status: first playable version (v0.1.0).** Solo PWA with the Classic and Challenge modes, installable and playable
-> offline. See [Development](#development) to run it.
+> **Status: v0.2.0.** Solo PWA with the Classic and Challenge modes and an interactive tutorial, in English, French and
+> Spanish, installable and playable offline. Published on GitHub Pages (see [Deployment](#deployment)). Next steps:
+> [docs/roadmap.md](docs/roadmap.md).
 
 ## Inspirations
 
@@ -38,7 +39,7 @@ conflicting clues.
 - **3 characters**, simple geometric shapes with a face, each with a unique color:
   - **the Star**: a purple five-pointed star with one eye (a cyclops);
   - **the Circle**: a green circle with two eyes;
-  - **the Square**: an orange square with three eyes.
+  - **the Square**: a red square with three eyes.
 - **Rule cards**: 55 in the base deck, plus 36 in the expert deck. Each card shows one rule as a symbolic drawing with a
   short caption on the same face. All cards share the same plain back. See [docs/rule-cards.md](docs/rule-cards.md).
 - **8 order tokens**, numbered 1 to 8.
@@ -117,6 +118,9 @@ Mobile first, installable and playable offline.
   the cards, then reveals the true maximum and an optimal arrangement.
 - **Challenge** (working name). The game announces the maximum for each round, and the player must find a compatible
   group of that size. Any valid group is accepted, since there are often several.
+- **Tutorial.** Three short lessons played on the real game screen: the board, contradictions, and Classic mode (bid,
+  then all-or-nothing demonstration). A coach banner explains each step and highlights what to tap. It is offered first
+  on the home screen until it has been completed once.
 
 In both modes:
 
@@ -124,12 +128,13 @@ In both modes:
   waiting. A character placed in the row or column of another one sends it back to the tray.
 - **Cards**: tap a card to select it. Tap its magnifier (or press and hold the card) to zoom in on it and read its
   caption.
-- **Settings**: base deck (55 cards) or full deck (91 cards), and the Classic timer (off, 1, 2, 3 or 5 minutes).
+- **Settings**: language (English, Français, Español; the browser language by default), base deck (55 cards) or full
+  deck (91 cards), and the Classic timer (off, 1, 2, 3 or 5 minutes).
 - The game in progress is saved on the device, and its clock is paused while the app is in the background.
 - Personal records per mode and deck: fewest rounds and fastest game.
 
-Later ideas: a tutorial, hints (like the light bulb of the inspiration app), a daily puzzle (same draw for everyone),
-and local pass-and-play multiplayer (ties broken by lock-in time).
+Planned: hints, a daily puzzle, local and online multiplayer, and a printable edition. See
+[docs/roadmap.md](docs/roadmap.md).
 
 ### Tech stack
 
@@ -162,16 +167,40 @@ deno task icons     # regenerate the app icons from the character artwork
 - The service worker (`src/sw.ts`) only runs in the production build. It precaches every file and serves the app
   cache-first. Each build gets a new cache version, computed from the file contents.
 
+## Deployment
+
+Every push to `main` runs [.github/workflows/deploy.yml](.github/workflows/deploy.yml): format, lint and type checks,
+unit tests, build, end-to-end tests, then publication of `dist/` to GitHub Pages. It can also be started by hand from
+the Actions tab. The e2e screenshots are attached to each run.
+
+One-time setup:
+
+1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+2. Custom domain `trilemma.lonebee.games`:
+   - at the DNS provider of `lonebee.games`, add a `CNAME` record from `trilemma` to `hatscat.github.io`;
+   - in **Settings → Pages → Custom domain**, enter `trilemma.lonebee.games`, wait for the DNS check, then tick
+     **Enforce HTTPS**;
+   - recommended: verify `lonebee.games` in the GitHub account settings (**Pages → Verified domains**) to protect it
+     against domain takeover.
+
+   No `CNAME` file is needed in the repository: with a GitHub Actions deployment, the custom domain is set in the
+   repository settings.
+
+The build uses relative URLs, so the same files work at `https://hatscat.github.io/Trilemma/` and at the root of the
+custom domain.
+
 ## Repository layout
 
 ```
-src/core/     game logic, pure and DOM-free: board, rule cards, solver, game state machine (+ unit tests)
-src/ui/       DOM views: home, game screen, rules, dialogs, SVG artwork, local storage
+src/core/     game logic, pure and DOM-free: board, rule cards, solver, game state machine, tutorial lessons (+ tests)
+src/i18n/     translations (en, fr, es): interface texts, card captions derived from the card faces, rules, tutorial
+src/ui/       DOM views: home, game screen, tutorial, rules, dialogs, SVG artwork, local storage
 src/main.ts   entry point: router, persistence, service worker registration
 src/sw.ts     service worker (offline-first)
 public/       web app manifest and icons
 e2e/          Playwright end-to-end tests
 analysis/     probability analysis script (uses src/core)
 scripts/      icon generator
-docs/         rule-cards.md (full card list and design), math.md (probabilities, choice of n)
+docs/         rule-cards.md (card list and design), math.md (probabilities, choice of n), roadmap.md
+.github/      GitHub Pages deployment workflow
 ```

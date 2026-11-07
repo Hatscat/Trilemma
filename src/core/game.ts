@@ -10,7 +10,7 @@
  */
 
 import { arrangementIndex, EMPTY_PLACEMENT, placeCharacter, type Placement, placementToArrangement } from "./board.ts";
-import { deckCards, type DeckChoice } from "./cards.ts";
+import { deckCards, type DeckChoice, getCard } from "./cards.ts";
 import { mulberry32, shuffled } from "./rng.ts";
 import { analyzeTable, isCardTrue, trueCards } from "./solver.ts";
 
@@ -121,12 +121,25 @@ function startRound(
 
 export function newGame(config: GameConfig, now: number): GameState {
   const ids = deckCards(config.deck).map((c) => c.id);
-  const pile = shuffled(ids, mulberry32(config.seed));
+  return dealGame(config, shuffled(ids, mulberry32(config.seed)), now);
+}
+
+/**
+ * A game with a fixed card order instead of a shuffled deck (tutorial lessons, puzzles).
+ * The first `TABLE_SIZE` cards are dealt; shorter lists leave empty slots.
+ */
+export function newScriptedGame(config: GameConfig, cards: readonly string[], now: number): GameState {
+  for (const id of cards) getCard(id);
+  return dealGame(config, cards, now);
+}
+
+function dealGame(config: GameConfig, order: readonly string[], now: number): GameState {
+  const table = Array.from({ length: TABLE_SIZE }, (_, i) => order[i] ?? null);
   return startRound({
     version: STATE_VERSION,
     config,
-    table: pile.slice(0, TABLE_SIZE),
-    pile: pile.slice(TABLE_SIZE),
+    table,
+    pile: order.slice(TABLE_SIZE),
     won: [],
     discarded: [],
     round: 1,

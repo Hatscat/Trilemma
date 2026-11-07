@@ -1,0 +1,66 @@
+# Checks, tests and builds the PWA, then publishes dist/ to GitHub Pages.
+# One-time setup in the repository: Settings → Pages → Source: "GitHub Actions".
+# Custom domain: see "Deployment" in README.md.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install dependencies
+        run: deno install --frozen
+
+      - name: Format, lint and type-check
+        run: deno task check
+
+      - name: Unit tests
+        run: deno task test
+
+      # Builds dist/ and runs the Playwright tests with the Google Chrome preinstalled on the runner.
+      - name: Build and end-to-end tests
+        run: deno task e2e
+
+      - name: Keep the e2e screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: e2e/artifacts/
+          if-no-files-found: ignore
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

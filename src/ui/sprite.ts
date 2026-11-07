@@ -15,7 +15,7 @@ export const COLORS = {
   characters: [
     { fill: "#8e5bd8", stroke: "#5a2f9e" }, // Star: purple
     { fill: "#2fa866", stroke: "#1b6e41" }, // Circle: green
-    { fill: "#f28a2e", stroke: "#b35a0e" }, // Square: orange
+    { fill: "#e2463d", stroke: "#a1241d" }, // Square: red
   ],
 } as const;
 

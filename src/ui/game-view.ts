@@ -1,6 +1,7 @@
 /**
  * Game screen: board, character tray, face-up cards and the action bar.
  * The view keeps references to its DOM nodes and updates them on every state change.
+ * All texts come from the current translation (`t()`).
  */
 
 import {
@@ -12,8 +13,10 @@ import {
   cellRow,
   characterAt,
   CHARACTERS,
+  COL_LABELS,
   isDark,
   type Placement,
+  ROW_LABELS,
 } from "../core/board.ts";
 import { getCard } from "../core/cards.ts";
 import {
@@ -37,19 +40,38 @@ import {
   tableCards,
   toggleCard,
 } from "../core/game.ts";
+import { cardCaption, familyTitle, t } from "../i18n/index.ts";
 import { bidDialog, cardZoomDialog, closeAllDialogs, confirmDialog, openDialog } from "./dialogs.ts";
 import { formatClock, formatDuration, h, ICONS, prefersReducedMotion } from "./dom.ts";
 import { glyphSvg } from "./glyph.ts";
 import { characterSvg } from "./sprite.ts";
 import { addFinishedGame } from "./storage.ts";
 
+/** UI events that do not change the game state (used by the tutorial). */
+export type ViewEvent = "zoom" | "revealed";
+
 export interface GameViewCallbacks {
   /** Back to the menu. */
   readonly onExit: () => void;
-  /** Called after every state change (persistence). */
+  /** Called after every state change (persistence, tutorial progress). */
   readonly onChange: (state: GameState) => void;
   /** Starts a new game with the same settings. */
-  readonly onPlayAgain: (mode: Mode) => void;
+  readonly onPlayAgain?: (mode: Mode) => void;
+  readonly onEvent?: (event: ViewEvent) => void;
+}
+
+export interface GameViewOptions {
+  /** Header title (defaults to the mode name). */
+  readonly title?: string;
+  /** Header subtitle (defaults to the round number). */
+  readonly subtitle?: (state: GameState) => string;
+  /** Element shown between the header and the play area (tutorial coach). */
+  readonly banner?: HTMLElement;
+  /** Replaces the buttons shown after a won round (tutorial). */
+  readonly continueButton?: { readonly label: () => string; readonly onClick: () => void };
+  /** Actions removed from the action bar. */
+  readonly hiddenActions?: readonly string[];
+  readonly className?: string;
 }
 
 interface ButtonSpec {
@@ -82,6 +104,7 @@ export class GameView {
   readonly root: HTMLElement;
   #state: GameState;
   #callbacks: GameViewCallbacks;
+  #options: GameViewOptions;
   #active: number | null = null;
   #showSolution = false;
   #revealed = Number.POSITIVE_INFINITY;
@@ -100,20 +123,22 @@ export class GameView {
   #destroyed = false;
 
   #header = h("header", { class: "game-header" });
-  #roundLabel = h("span", { class: "round" });
+  #title = h("strong", {});
+  #subtitle = h("span", { class: "round" });
   #stats = h("span", { class: "stats" });
   #clock = h("span", { class: "clock", role: "timer", "aria-live": "off" });
-  #board = h("div", { class: "board-cells", role: "group", "aria-label": "Board" });
-  #tray = h("div", { class: "tray", "data-tray": "", role: "group", "aria-label": "Characters off the board" });
-  #cards = h("div", { class: "cards", role: "group", "aria-label": "Rule cards" });
+  #board = h("div", { class: "board-cells", role: "group" });
+  #tray = h("div", { class: "tray", "data-tray": "", role: "group" });
+  #cards = h("div", { class: "cards", role: "group" });
   #actions = h("footer", { class: "action-bar" });
   #cells: HTMLButtonElement[] = [];
   #traySlots: HTMLButtonElement[] = [];
   #slots: HTMLElement[] = [];
 
-  constructor(state: GameState, callbacks: GameViewCallbacks) {
+  constructor(state: GameState, callbacks: GameViewCallbacks, options: GameViewOptions = {}) {
     this.#state = state;
     this.#callbacks = callbacks;
+    this.#options = options;
     this.root = this.#build();
     this.#render();
     this.#firstRender = false;
@@ -122,6 +147,15 @@ export class GameView {
     document.addEventListener("visibilitychange", this.#onVisibility);
     if (state.phase.name === "bidding") queueMicrotask(() => this.#askBid(true));
     if (state.phase.name === "over") queueMicrotask(() => this.#showGameOver(false));
+  }
+
+  get state(): GameState {
+    return this.#state;
+  }
+
+  /** True while the cards of a demonstration are being revealed one by one. */
+  get busy(): boolean {
+    return this.#animating;
   }
 
   destroy(): void {
@@ -135,32 +169,32 @@ export class GameView {
     closeAllDialogs();
   }
 
+  /** Re-renders after an external change (e.g. the tutorial coach). */
+  refresh(): void {
+    this.#actionKey = "";
+    this.#render();
+  }
+
   // -------------------------------------------------------------------------
   // Building
   // -------------------------------------------------------------------------
 
   #build(): HTMLElement {
+    const m = t().game;
     const mode = this.#state.config.mode;
+    this.#title.textContent = this.#options.title ?? m.modeName(mode);
+    this.#board.setAttribute("aria-label", m.boardLabel);
+    this.#tray.setAttribute("aria-label", m.trayLabel);
+    this.#cards.setAttribute("aria-label", m.cardsLabel);
     this.#header.append(
-      h("button", {
-        type: "button",
-        class: "icon-btn",
-        "data-action": "exit",
-        "aria-label": "Back to the menu",
-        html: ICONS.back,
-      }),
-      h(
-        "div",
-        { class: "game-title" },
-        h("strong", {}, mode === "classic" ? "Classic" : "Challenge"),
-        this.#roundLabel,
-      ),
+      h("button", { type: "button", class: "icon-btn", "data-action": "exit", "aria-label": m.back, html: ICONS.back }),
+      h("div", { class: "game-title" }, this.#title, this.#subtitle),
       this.#stats,
       this.#clock,
     );
 
-    const colLabels = [0, 1, 2].map((c) => h("span", { class: "label col-label" }, "ABC"[c]));
-    const rowLabels = [0, 1, 2].map((r) => h("span", { class: "label row-label" }, String(r + 1)));
+    const colLabels = COL_LABELS.map((label) => h("span", { class: "label col-label" }, label));
+    const rowLabels = ROW_LABELS.map((label) => h("span", { class: "label row-label" }, label));
     for (let cell = 0; cell < CELL_COUNT; cell++) {
       const button = h("button", {
         type: "button",
@@ -191,8 +225,9 @@ export class GameView {
 
     const root = h(
       "main",
-      { class: `screen game mode-${mode}` },
+      { class: `screen game mode-${mode} ${this.#options.className ?? ""}` },
       this.#header,
+      this.#options.banner ?? null,
       h("section", { class: "play-area" }, h("div", { class: "board-zone" }, board, this.#tray), this.#cards),
       this.#actions,
     );
@@ -214,15 +249,15 @@ export class GameView {
       next = transition(this.#state);
     } catch (error) {
       if (error instanceof GameError) {
-        this.#showFlash(error.message);
+        this.#showFlash(t().game.notPossible);
         return false;
       }
       throw error;
     }
     const previous = this.#state;
     this.#state = next;
-    this.#callbacks.onChange(next);
     this.#onTransition(previous, next);
+    this.#callbacks.onChange(next);
     this.#render();
     return true;
   }
@@ -256,11 +291,13 @@ export class GameView {
     this.#revealed = 0;
     this.#animationTimer = setInterval(() => {
       this.#revealed++;
-      if (this.#revealed >= result.checks.length) {
+      const done = this.#revealed >= result.checks.length;
+      if (done) {
         clearInterval(this.#animationTimer);
         this.#revealed = Number.POSITIVE_INFINITY;
       }
       this.#render();
+      if (done) this.#callbacks.onEvent?.("revealed");
     }, CHECK_REVEAL_MS);
   }
 
@@ -297,11 +334,13 @@ export class GameView {
 
   #renderHeader(): void {
     const s = this.#state;
-    this.#roundLabel.textContent = s.phase.name === "over" ? "Game over" : `Round ${s.round}`;
-    const parts = [`Pile ${s.pile.length}`, `Won ${s.won.length}`];
+    const m = t().game;
+    this.#subtitle.textContent = this.#options.subtitle?.(s) ??
+      (s.phase.name === "over" ? m.gameOver : m.round(s.round));
+    const parts = [m.pile(s.pile.length), m.won(s.won.length)];
     if (s.config.mode === "challenge") {
       const ongoing = s.phase.name === "search" ? s.roundMistakes : 0;
-      parts.push(`Mistakes ${s.history.reduce((n, r) => n + r.mistakes, 0) + ongoing}`);
+      parts.push(m.mistakes(s.history.reduce((n, r) => n + r.mistakes, 0) + ongoing));
     }
     // Each part stays on one line; the header wraps between parts on narrow screens.
     this.#stats.replaceChildren(
@@ -318,6 +357,7 @@ export class GameView {
   }
 
   #renderBoard(): void {
+    const m = t().game;
     const placement = this.#shownPlacement();
     const editable = this.#editable;
     const active = editable ? this.#active : null;
@@ -345,9 +385,7 @@ export class GameView {
       button.classList.toggle("is-conflict", conflict);
       button.classList.toggle("is-active", occupant !== null && occupant === active && activeCell === cell);
       button.classList.toggle("has-piece", occupant !== null);
-      const shade = isDark(row, col) ? "dark" : "light";
-      const who = occupant === null ? "empty" : `the ${CHARACTERS[occupant].name}`;
-      button.setAttribute("aria-label", `Cell ${cellLabel(row, col)}, ${shade}, ${who}`);
+      button.setAttribute("aria-label", m.cellLabel(cellLabel(row, col), isDark(row, col), occupant));
     }
   }
 
@@ -362,10 +400,7 @@ export class GameView {
         if (offBoard) slot.querySelector("svg")!.dataset.piece = String(c);
       }
       slot.classList.toggle("is-active", offBoard && active === c);
-      slot.setAttribute(
-        "aria-label",
-        offBoard ? `The ${CHARACTERS[c].name}, off the board` : `Send the ${CHARACTERS[c].name} back here`,
-      );
+      slot.setAttribute("aria-label", t().game.traySlotLabel(c, offBoard));
     }
   }
 
@@ -391,8 +426,7 @@ export class GameView {
       slot.classList.toggle("is-empty", id === null);
       if (id === null) continue;
       const selected = s.selection.includes(id);
-      const checkIndex = revealedChecks.findIndex((c) => c.id === id);
-      const checked = checkIndex === -1 ? null : revealedChecks[checkIndex];
+      const checked = revealedChecks.find((c) => c.id === id) ?? null;
       let badge: "" | "selected" | "true" | "false" = "";
       const classes: Record<string, boolean> = {};
       if (result && this.#showSolution) {
@@ -426,7 +460,9 @@ export class GameView {
 
   #renderActions(): void {
     const view = this.#actionView();
-    const key = JSON.stringify(view);
+    const hidden = this.#options.hiddenActions ?? [];
+    const buttons = view.buttons.filter((b) => !hidden.includes(b.action));
+    const key = JSON.stringify({ ...view, buttons });
     if (key === this.#actionKey) return;
     this.#actionKey = key;
     this.#actions.dataset.tone = view.tone ?? "info";
@@ -440,7 +476,7 @@ export class GameView {
       h(
         "div",
         { class: "actions" },
-        ...view.buttons.map((b) =>
+        ...buttons.map((b) =>
           h("button", {
             type: "button",
             class: `btn ${b.primary ? "btn-primary" : "btn-ghost"}`,
@@ -453,114 +489,100 @@ export class GameView {
   }
 
   #actionView(): ActionView {
+    const m = t().game;
     const s = this.#state;
     const { phase } = s;
     const count = s.selection.length;
     const placed = s.placement.filter((p) => p !== null).length;
-    const hasWork = placed > 0 || count > 0;
-    const clear: ButtonSpec = { label: "Clear", action: "clear", disabled: !hasWork };
+    const clear: ButtonSpec = { label: m.clear, action: "clear", disabled: placed === 0 && count === 0 };
     const flash = this.#flash;
 
-    if (this.#animating) return { status: "Checking the cards…", buttons: [] };
+    if (this.#animating) return { status: m.checking, buttons: [] };
 
     switch (phase.name) {
       case "search": {
         if (s.config.mode === "classic") {
           return {
-            status: flash ?? "Find the largest group of cards that can all be true at once.",
-            detail: `${count} card${count === 1 ? "" : "s"} selected · ${placed}/3 characters placed`,
+            status: flash ?? m.searchClassic,
+            detail: m.searchClassicDetail(count, placed),
             tone: flash ? "bad" : "info",
-            buttons: [clear, { label: "Lock in", action: "lock-in", primary: true }],
+            buttons: [clear, { label: m.lockIn, action: "lock-in", primary: true }],
           };
         }
         const missing = missingFor(s.target, count, placed);
         const falseCard = phase.feedback ? getCard(phase.feedback.falseCard) : null;
         return {
-          status: flash ??
-            (falseCard
-              ? `Card ${falseCard.number} is false for this arrangement. Try again!`
-              : `Find ${s.target} cards that can all be true at once.`),
-          detail: `${count}/${s.target} selected${missing ? ` · ${missing}` : ""}`,
+          status: flash ?? (falseCard ? m.falseCardRetry(falseCard.number) : m.searchChallenge(s.target)),
+          detail: [m.selectedOf(count, s.target), missing].filter(Boolean).join(" · "),
           tone: flash || falseCard ? "bad" : "info",
           buttons: [
-            { label: "Give up", action: "give-up" },
-            { label: "Check", action: "check", primary: true, disabled: missing !== null },
+            { label: m.giveUp, action: "give-up" },
+            { label: m.check, action: "check", primary: true, disabled: missing !== null },
           ],
         };
       }
       case "bidding":
-        return {
-          status: "Time's up! Lock in your bid.",
-          tone: "bad",
-          buttons: [{ label: "Lock in", action: "forced-bid", primary: true }],
-        };
+        return { status: m.timesUp, tone: "bad", buttons: [{ label: m.lockIn, action: "forced-bid", primary: true }] };
       case "demonstrate": {
         const missing = missingFor(phase.bid, count, placed);
         return {
-          status: flash ?? `Bid: ${phase.bid}. Place the characters and select exactly ${phase.bid} cards.`,
-          detail: `${count}/${phase.bid} selected${missing ? ` · ${missing}` : ""}`,
+          status: flash ?? m.demonstrateStatus(phase.bid),
+          detail: [m.selectedOf(count, phase.bid), missing].filter(Boolean).join(" · "),
           tone: flash ? "bad" : "info",
-          buttons: [clear, { label: "Demonstrate", action: "demonstrate", primary: true, disabled: missing !== null }],
+          buttons: [clear, { label: m.demonstrate, action: "demonstrate", primary: true, disabled: missing !== null }],
         };
       }
       case "result":
         return this.#resultView(phase.result);
       case "over":
         return {
-          status: "Deck cleared!",
+          status: m.deckCleared,
           tone: "ok",
-          buttons: [{ label: "See results", action: "results", primary: true }],
+          buttons: [{ label: m.seeResults, action: "results", primary: true }],
         };
     }
   }
 
   #resultView(result: RoundResult): ActionView {
+    const m = t().game;
     const s = this.#state;
     const lastRound = s.pile.length === 0 && tableCards(s).length === result.removed.length;
-    const next: ButtonSpec = { label: lastRound ? "See results" : "Next round", action: "next-round", primary: true };
-    const toggle: ButtonSpec = {
-      label: this.#showSolution ? "My arrangement" : "Best group",
-      action: "toggle-solution",
-    };
-    const best = `Best possible: ${result.max} card${result.max === 1 ? "" : "s"}.`;
+    const continueButton = this.#options.continueButton;
+    const next: ButtonSpec = continueButton && result.outcome === "won"
+      ? { label: continueButton.label(), action: "continue", primary: true }
+      : { label: lastRound ? m.seeResults : m.nextRound, action: "next-round", primary: true };
+    const toggle: ButtonSpec = { label: this.#showSolution ? m.myArrangement : m.bestGroup, action: "toggle-solution" };
     switch (result.outcome) {
       case "won": {
         if (result.bid === null) {
-          const mistakes = result.mistakes === 0
-            ? "No mistakes!"
-            : `${result.mistakes} mistake${result.mistakes === 1 ? "" : "s"}.`;
+          const mistakes = result.mistakes === 0 ? m.noMistakes : m.mistakeCount(result.mistakes);
           return {
-            status: `Well done! +${result.removed.length} cards.`,
-            detail: `${mistakes} Found in ${formatDuration(result.durationMs)}.`,
+            status: m.wellDone(result.removed.length),
+            detail: `${mistakes} ${m.foundIn(formatDuration(result.durationMs))}`,
             tone: "ok",
             buttons: [next],
           };
         }
         const perfect = result.bid === result.max;
         return {
-          status: `Valid demonstration! +${result.bid} card${result.bid === 1 ? "" : "s"}.`,
-          detail: perfect ? "Perfect: that was the largest group." : best,
+          status: m.validDemonstration(result.bid),
+          detail: perfect ? m.perfect : m.bestPossible(result.max),
           tone: "ok",
           buttons: perfect ? [next] : [toggle, next],
         };
       }
       case "failed": {
         const falseCheck = result.checks.find((c) => !c.ok);
-        const reason = falseCheck ? `Card ${getCard(falseCheck.id).number} is false.` : "Incomplete demonstration.";
+        const reason = falseCheck ? m.cardFalse(getCard(falseCheck.id).number) : m.incomplete;
         return {
-          status: `${reason} Nobody scores.`,
-          detail: `${best} The same cards stay.`,
+          status: `${reason} ${m.nobodyScores}`,
+          detail: `${m.bestPossible(result.max)} ${m.sameCardsStay}`,
           tone: "bad",
           buttons: [toggle, next],
         };
       }
       case "revealed":
-        return {
-          status: `Here is a group of ${result.max} compatible cards.`,
-          detail: "These cards are discarded.",
-          tone: "info",
-          buttons: [next],
-        };
+        return { status: m.revealed(result.max), detail: m.discarded, tone: "info", buttons: [next] };
     }
   }
 
@@ -767,6 +789,7 @@ export class GameView {
       canSelect: this.#editable,
       onToggle: () => this.#apply((s) => toggleCard(s, cardId)),
     });
+    this.#callbacks.onEvent?.("zoom");
   }
 
   async #askBid(forced: boolean): Promise<void> {
@@ -786,6 +809,7 @@ export class GameView {
 
   #runAction(action: string): void {
     const now = () => Date.now();
+    const d = t().dialogs;
     switch (action) {
       case "exit":
         this.#callbacks.onExit();
@@ -808,10 +832,10 @@ export class GameView {
         break;
       case "give-up":
         void confirmDialog({
-          title: "Give up this round?",
-          message: "A solution will be shown and its cards will be discarded.",
-          confirm: "Show a solution",
-          cancel: "Keep searching",
+          title: d.giveUpTitle,
+          message: d.giveUpMessage,
+          confirm: d.giveUpConfirm,
+          cancel: d.keepSearching,
         }).then((ok) => ok && this.#apply((s) => giveUp(s, now())));
         break;
       case "toggle-solution":
@@ -820,6 +844,9 @@ export class GameView {
         break;
       case "next-round":
         this.#apply((s) => nextRound(s, now()));
+        break;
+      case "continue":
+        this.#options.continueButton?.onClick();
         break;
       case "results":
         this.#showGameOver(false);
@@ -832,33 +859,30 @@ export class GameView {
   // -------------------------------------------------------------------------
 
   #showGameOver(justFinished: boolean): void {
+    const o = t().over;
     const s = this.#state;
     const summary = summarize(s, Date.now());
     const { mode, deck } = s.config;
     const records = justFinished ? addFinishedGame(mode, deck, summary) : null;
     const rows: [string, string][] = [
-      ["Rounds", String(summary.rounds)],
-      ["Cards won", `${summary.cardsWon}`],
-      [mode === "classic" ? "Perfect bids" : "Rounds without mistakes", String(summary.perfectRounds)],
+      [o.rounds, String(summary.rounds)],
+      [o.cardsWon, String(summary.cardsWon)],
+      [mode === "classic" ? o.perfectBids : o.roundsWithoutMistakes, String(summary.perfectRounds)],
       mode === "classic"
-        ? ["Void demonstrations", String(summary.failedRounds)]
-        : ["Mistakes", String(summary.mistakes)],
-      ...(mode === "challenge" ? [["Solutions revealed", String(summary.revealedRounds)] as [string, string]] : []),
-      ["Time", formatDuration(summary.durationMs)],
+        ? [o.voidDemonstrations, String(summary.failedRounds)]
+        : [o.mistakes, String(summary.mistakes)],
+      ...(mode === "challenge" ? [[o.solutionsRevealed, String(summary.revealedRounds)] as [string, string]] : []),
+      [o.time, formatDuration(summary.durationMs)],
     ];
     const badges = [
-      records?.newBestRounds ? "New record: fewest rounds!" : null,
-      records?.newBestTime ? "New record: fastest game!" : null,
+      records?.newBestRounds ? o.newBestRounds : null,
+      records?.newBestTime ? o.newBestTime : null,
     ].filter((b): b is string => b !== null);
     const content = h(
       "div",
       { class: "dialog-body game-over" },
-      h("h2", {}, "Deck cleared!"),
-      h(
-        "p",
-        {},
-        `${mode === "classic" ? "Classic" : "Challenge"} · ${deck === "base" ? "Base deck" : "Full deck"}`,
-      ),
+      h("h2", {}, o.title),
+      h("p", {}, o.subtitle(mode, deck === "full")),
       ...badges.map((b) => h("p", { class: "record-badge" }, b)),
       h("dl", { class: "summary" }, ...rows.flatMap(([k, v]) => [h("dt", {}, k), h("dd", {}, v)])),
       h(
@@ -871,30 +895,34 @@ export class GameView {
             dialog.close();
             this.#callbacks.onExit();
           },
-        }, "Menu"),
-        h("button", {
-          type: "button",
-          class: "btn btn-primary",
-          onclick: () => {
-            dialog.close();
-            this.#callbacks.onPlayAgain(mode);
-          },
-        }, "Play again"),
+        }, o.menu),
+        this.#callbacks.onPlayAgain
+          ? h("button", {
+            type: "button",
+            class: "btn btn-primary",
+            onclick: () => {
+              dialog.close();
+              this.#callbacks.onPlayAgain?.(mode);
+            },
+          }, o.playAgain)
+          : null,
       ),
     );
-    const dialog = openDialog(content, { dismissable: true, label: "Game over" });
+    const dialog = openDialog(content, { dismissable: true, label: o.title });
   }
 }
 
 function missingFor(target: number, count: number, placed: number): string | null {
-  if (placed < 3) return `place ${3 - placed} more character${placed === 2 ? "" : "s"}`;
-  if (count < target) return `select ${target - count} more`;
-  if (count > target) return `unselect ${count - target}`;
+  const m = t().game;
+  if (placed < 3) return m.missingPlace(3 - placed);
+  if (count < target) return m.missingSelect(target - count);
+  if (count > target) return m.missingUnselect(count - target);
   return null;
 }
 
 function cardNodes(id: string): HTMLElement[] {
   const card = getCard(id);
+  const caption = cardCaption(card);
   return [
     h(
       "button",
@@ -904,18 +932,19 @@ function cardNodes(id: string): HTMLElement[] {
         "data-card-id": card.id,
         "data-group": card.family.group,
         "aria-pressed": "false",
-        "aria-label": `Card ${card.number}: ${card.text}`,
+        "aria-label": t().game.cardLabel(card.number, caption),
+        title: familyTitle(card),
       },
       h("span", { class: "card-number", "aria-hidden": "true" }, card.number),
       h("span", { class: "card-glyph", html: glyphSvg(card.glyph) }),
-      h("span", { class: "card-text" }, card.text),
+      h("span", { class: "card-text" }, caption),
       h("span", { class: "card-badge", "aria-hidden": "true" }),
     ),
     h("button", {
       type: "button",
       class: "card-zoom",
       "data-zoom": card.id,
-      "aria-label": `Zoom on card ${card.number}`,
+      "aria-label": t().game.zoomLabel(card.number),
       html: ICONS.zoom,
     }),
   ];

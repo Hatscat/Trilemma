@@ -8,6 +8,8 @@ import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
 import { ARRANGEMENTS, arrangementToPlacement } from "../src/core/board.ts";
 import { getCard } from "../src/core/cards.ts";
+import { LESSONS } from "../src/core/lessons.ts";
+import { MESSAGES } from "../src/i18n/index.ts";
 import { type GameConfig, type GameState, newGame, tableCards } from "../src/core/game.ts";
 import { analyzeTable, isCardTrue, trueCards } from "../src/core/solver.ts";
 import { launchOptions } from "./browser.ts";
@@ -39,8 +41,13 @@ interface Session {
   close(): Promise<void>;
 }
 
-async function newPage(browser: Browser, viewport = MOBILE): Promise<Session> {
-  const context = await browser.newContext({ viewport, deviceScaleFactor: 2, hasTouch: viewport.width < 600 });
+async function newPage(browser: Browser, viewport = MOBILE, locale = "en-US"): Promise<Session> {
+  const context = await browser.newContext({
+    viewport,
+    locale,
+    deviceScaleFactor: 2,
+    hasTouch: viewport.width < 600,
+  });
   const page = await context.newPage();
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -231,6 +238,109 @@ Deno.test({
         await screenshot(page, "09-game-over");
         await page.click("dialog >> text=Menu");
         assertStringIncludes((await page.textContent(".records")) ?? "", `${rounds} rounds`);
+        await session.close();
+      });
+
+      await t.step("the interface and the card captions can be played in French and Spanish", async () => {
+        const game = expectedGame("classic");
+        const first = getCard(game.table[0]!);
+        const session = await newPage(browser);
+        const { page } = session;
+        await page.goto(home);
+        await page.click('label[for="lang-1"]'); // Français
+        assertEquals(await page.getAttribute("html", "lang"), "fr");
+        assertEquals(await page.textContent(".tagline"), MESSAGES.fr.home.tagline);
+        await screenshot(page, "10-home-fr");
+        await page.click('[data-mode="classic"]');
+        assertEquals(
+          await page.textContent('.card-slot[data-slot="0"] .card-text'),
+          MESSAGES.fr.cardCaption(first.glyph),
+        );
+        assertEquals(await page.textContent('[data-action="lock-in"]'), "Annoncer");
+        await screenshot(page, "11-classic-fr");
+        await page.click('[data-action="exit"]');
+        await page.click('label[for="lang-2"]'); // Español
+        assertEquals(await page.textContent(".resume strong"), "Continuar");
+        await page.reload();
+        assertEquals(await page.getAttribute("html", "lang"), "es", "the language choice is remembered");
+        await session.close();
+      });
+
+      await t.step("the language follows the browser preferences by default", async () => {
+        const session = await newPage(browser, MOBILE, "es-ES");
+        const { page } = session;
+        await page.goto(home);
+        assertEquals(await page.getAttribute("html", "lang"), "es");
+        assertEquals(await page.textContent(".tagline"), MESSAGES.es.home.tagline);
+        await session.close();
+      });
+
+      await t.step("the tutorial teaches the game in three lessons", async () => {
+        const session = await newPage(browser);
+        const { page } = session;
+        const step = (name: string) => page.waitForSelector(`.coach[data-step="${name}"]`);
+        const next = () => page.click("[data-coach-next]");
+        const solveLesson = async (index: number, withCheck: boolean) => {
+          const { cards } = LESSONS[index];
+          const arrangement = analyzeTable(cards).optimal[0];
+          await placeArrangement(page, arrangement);
+          await selectCards(page, trueCards(cards, arrangement));
+          if (withCheck) await page.click('[data-action="check"]');
+        };
+        await page.goto(home);
+        await page.click('[data-mode="tutorial"]');
+
+        // Lesson 1: the board.
+        await step("meet");
+        await next();
+        await step("board");
+        await next();
+        await step("place");
+        await screenshot(page, "12-tutorial-place");
+        const lesson1 = LESSONS[0].cards;
+        await placeArrangement(page, analyzeTable(lesson1).optimal[0]);
+        await step("zoom");
+        await page.click(`[data-zoom="${lesson1[0]}"]`);
+        await page.click(".zoom-dialog .btn-ghost"); // Close
+        await step("allThree"); // The Star is already in row 1: that step is skipped.
+        await selectCards(page, lesson1);
+        await page.click('[data-action="check"]');
+        await step("boardDone");
+        await page.click('[data-action="continue"]');
+
+        // Lesson 2: contradictions.
+        await step("contradiction");
+        await next();
+        await step("largest");
+        await solveLesson(1, true);
+        await step("contradictionsDone");
+        await page.click('[data-action="continue"]');
+
+        // Lesson 3: classic mode, with a void demonstration first.
+        await step("classicIntro");
+        await next();
+        await step("lockIn");
+        const lesson3 = LESSONS[2].cards;
+        const arrangement = analyzeTable(lesson3).optimal[0];
+        const good = trueCards(lesson3, arrangement);
+        const bad = lesson3.find((id) => !isCardTrue(id, arrangement))!;
+        await placeArrangement(page, arrangement);
+        await selectCards(page, [...good.slice(1), bad]);
+        await lockInBid(page, 4);
+        await step("prove");
+        await page.click('[data-action="demonstrate"]');
+        await step("retry");
+        await page.click('[data-action="next-round"]');
+        await step("lockIn");
+        await solveLesson(2, false);
+        await lockInBid(page, 4);
+        await page.click('[data-action="demonstrate"]');
+        await step("classicDone");
+        await screenshot(page, "13-tutorial-done");
+        await page.click('[data-action="continue"]'); // Finish
+
+        await page.waitForSelector(".home");
+        assertEquals(await page.locator('[data-mode="tutorial"]').count(), 0, "the tutorial card is gone once done");
         await session.close();
       });
 

@@ -45,12 +45,17 @@ await Deno.writeTextFile("public/favicon.svg", iconSvg({ rounded: true, boardSiz
 
 const browser = await chromium.launch(launchOptions());
 try {
-  const page = await browser.newPage();
   for (const icon of ICONS) {
-    await page.setViewportSize({ width: icon.size, height: icon.size });
-    const svg = icon.svg.replace("<svg ", `<svg width="${icon.size}" height="${icon.size}" `);
+    // Always lay out at 512 px and scale the output: tiny viewports are unreliable in Chrome.
+    const context = await browser.newContext({
+      viewport: { width: 512, height: 512 },
+      deviceScaleFactor: icon.size / 512,
+    });
+    const page = await context.newPage();
+    const svg = icon.svg.replace("<svg ", '<svg width="512" height="512" ');
     await page.setContent(`<html><body style="margin:0;background:transparent">${svg}</body></html>`);
     await page.screenshot({ path: icon.file, omitBackground: true });
+    await context.close();
     console.log(`Wrote ${icon.file}`);
   }
 } finally {

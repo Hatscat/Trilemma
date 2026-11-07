@@ -18,7 +18,7 @@ export interface CharacterInfo {
 export const CHARACTERS: readonly CharacterInfo[] = [
   { key: "STAR", name: "Star", symbol: "★", color: "purple", eyes: 1 },
   { key: "CIRCLE", name: "Circle", symbol: "●", color: "green", eyes: 2 },
-  { key: "SQUARE", name: "Square", symbol: "■", color: "orange", eyes: 3 },
+  { key: "SQUARE", name: "Square", symbol: "■", color: "red", eyes: 3 },
 ];
 
 export const SIZE = 3;

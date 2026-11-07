@@ -1,6 +1,7 @@
 /** Modal dialogs built on the native <dialog> element. */
 
 import type { Card } from "../core/cards.ts";
+import { cardCaption, familyTitle, t } from "../i18n/index.ts";
 import { h } from "./dom.ts";
 import { glyphSvg } from "./glyph.ts";
 
@@ -32,11 +33,12 @@ export function closeAllDialogs(): void {
 
 /** Asks for a bid between 1 and `max`. Resolves to `null` when the player keeps searching. */
 export function bidDialog(options: { max: number; preset: number | null; forced: boolean }): Promise<number | null> {
+  const d = t().dialogs;
   return new Promise((resolve) => {
     let chosen = options.preset !== null && options.preset >= 1 && options.preset <= options.max
       ? options.preset
       : null;
-    const confirm = h("button", { type: "button", class: "btn btn-primary", "data-action": "confirm-bid" }, "Lock in");
+    const confirm = h("button", { type: "button", class: "btn btn-primary", "data-action": "confirm-bid" }, d.lockIn);
     const numbers = Array.from({ length: options.max }, (_, i) => i + 1).map((n) =>
       h("button", {
         type: "button",
@@ -55,13 +57,9 @@ export function bidDialog(options: { max: number; preset: number | null; forced:
     const content = h(
       "div",
       { class: "dialog-body" },
-      h("h2", {}, options.forced ? "Time's up!" : "Lock in your bid"),
-      h(
-        "p",
-        {},
-        "How many compatible cards can you demonstrate? Your bid cannot change afterwards: you will have to show exactly that many cards.",
-      ),
-      h("div", { class: "bid-grid", role: "group", "aria-label": "Bid" }, ...numbers),
+      h("h2", {}, options.forced ? d.timesUpTitle : d.bidTitle),
+      h("p", {}, d.bidText),
+      h("div", { class: "bid-grid", role: "group", "aria-label": d.bidLabel }, ...numbers),
       h(
         "div",
         { class: "dialog-actions" },
@@ -69,15 +67,11 @@ export function bidDialog(options: { max: number; preset: number | null; forced:
           type: "button",
           class: "btn btn-ghost",
           onclick: () => dialog.close("cancel"),
-        }, "Keep searching"),
+        }, d.keepSearching),
         confirm,
       ),
     );
-    const dialog = openDialog(content, {
-      dismissable: !options.forced,
-      className: "bid-dialog",
-      label: "Lock in your bid",
-    });
+    const dialog = openDialog(content, { dismissable: !options.forced, className: "bid-dialog", label: d.bidTitle });
     confirm.addEventListener("click", () => dialog.close("ok"));
     dialog.addEventListener("close", () => resolve(dialog.returnValue === "ok" ? chosen : null));
   });
@@ -107,6 +101,7 @@ export function cardZoomDialog(
   card: Card,
   options: { selected: boolean; canSelect: boolean; onToggle: () => void },
 ): void {
+  const d = t().dialogs;
   const toggle = options.canSelect
     ? h("button", {
       type: "button",
@@ -115,24 +110,25 @@ export function cardZoomDialog(
         options.onToggle();
         dialog.close();
       },
-    }, options.selected ? "Unselect" : "Select")
+    }, options.selected ? d.unselect : d.select)
     : null;
+  const meta = d.cardMeta(card.number, familyTitle(card));
   const content = h(
     "div",
     { class: "dialog-body zoom" },
     h(
       "div",
       { class: "zoom-card", "data-group": card.family.group },
-      h("div", { class: "zoom-meta" }, `Card ${card.number} · ${card.family.title}`),
+      h("div", { class: "zoom-meta" }, meta),
       h("div", { class: "zoom-glyph", html: glyphSvg(card.glyph) }),
-      h("p", { class: "zoom-text" }, card.text),
+      h("p", { class: "zoom-text" }, cardCaption(card)),
     ),
     h(
       "div",
       { class: "dialog-actions" },
-      h("button", { type: "button", class: "btn btn-ghost", onclick: () => dialog.close() }, "Close"),
+      h("button", { type: "button", class: "btn btn-ghost", onclick: () => dialog.close() }, d.close),
       toggle,
     ),
   );
-  const dialog = openDialog(content, { dismissable: true, className: "zoom-dialog", label: `Card ${card.number}` });
+  const dialog = openDialog(content, { dismissable: true, className: "zoom-dialog", label: meta });
 }

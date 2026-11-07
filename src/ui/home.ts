@@ -1,7 +1,8 @@
-/** Home screen: mode choice, settings, resume and records. */
+/** Home screen: mode choice, tutorial, settings (language, deck, timer), resume and records. */
 
 import type { DeckChoice } from "../core/cards.ts";
 import type { GameState, Mode } from "../core/game.ts";
+import { type Lang, LANGS, MESSAGES, t } from "../i18n/index.ts";
 import { formatDuration, h } from "./dom.ts";
 import { characterSvg } from "./sprite.ts";
 import { loadRecords, recordKey, type Settings, TIMER_CHOICES } from "./storage.ts";
@@ -9,21 +10,9 @@ import { loadRecords, recordKey, type Settings, TIMER_CHOICES } from "./storage.
 export interface HomeCallbacks {
   readonly onStart: (mode: Mode) => void;
   readonly onResume: () => void;
+  readonly onTutorial: () => void;
   readonly onSettingsChange: (settings: Settings) => void;
 }
-
-const MODES: readonly { mode: Mode; title: string; text: string }[] = [
-  {
-    mode: "classic",
-    title: "Classic",
-    text: "Bid the size of the largest compatible group, then prove it. All or nothing!",
-  },
-  {
-    mode: "challenge",
-    title: "Challenge",
-    text: "The target is announced each round: find a group of cards that reaches it.",
-  },
-];
 
 function segmented<T>(
   name: string,
@@ -48,6 +37,7 @@ function segmented<T>(
             type: "radio",
             id,
             name,
+            value: String(option.value),
             checked: option.value === current,
             onchange: () => onChange(option.value),
           }),
@@ -58,7 +48,13 @@ function segmented<T>(
   );
 }
 
-export function renderHome(settings: Settings, saved: GameState | null, callbacks: HomeCallbacks): HTMLElement {
+export function renderHome(
+  settings: Settings,
+  lang: Lang,
+  saved: GameState | null,
+  callbacks: HomeCallbacks,
+): HTMLElement {
+  const m = t();
   let current = settings;
   const update = (patch: Partial<Settings>) => {
     current = { ...current, ...patch };
@@ -66,22 +62,20 @@ export function renderHome(settings: Settings, saved: GameState | null, callback
     renderRecords();
   };
 
-  const records = h("section", { class: "records", "aria-label": "Your records" });
+  const records = h("section", { class: "records", "aria-label": m.home.records(current.deck === "full") });
   const renderRecords = () => {
     const all = loadRecords();
-    const lines = MODES.flatMap(({ mode, title }) => {
+    const lines = (["classic", "challenge"] as const).flatMap((mode) => {
       const r = all[recordKey(mode, current.deck)];
       if (!r || r.played === 0) return [];
       const best = [
-        r.bestRounds !== null ? `${r.bestRounds} rounds` : null,
+        r.bestRounds !== null ? m.home.rounds(r.bestRounds) : null,
         r.bestTimeMs !== null ? formatDuration(r.bestTimeMs) : null,
       ].filter(Boolean).join(" · ");
-      return [h("li", {}, h("strong", {}, title), ` best: ${best || "—"} (${r.played} played)`)];
+      return [h("li", {}, h("strong", {}, m.game.modeName(mode)), m.home.recordLine(best || "—", r.played))];
     });
     records.replaceChildren(
-      ...(lines.length > 0
-        ? [h("h2", {}, `Records · ${current.deck === "base" ? "base deck" : "full deck"}`), h("ul", {}, ...lines)]
-        : []),
+      ...(lines.length > 0 ? [h("h2", {}, m.home.records(current.deck === "full")), h("ul", {}, ...lines)] : []),
     );
   };
   renderRecords();
@@ -90,16 +84,24 @@ export function renderHome(settings: Settings, saved: GameState | null, callback
     ? h(
       "button",
       { type: "button", class: "resume", "data-action": "resume", onclick: callbacks.onResume },
-      h("strong", {}, "Resume"),
-      h(
-        "span",
-        {},
-        `${
-          saved.config.mode === "classic" ? "Classic" : "Challenge"
-        } · round ${saved.round} · ${saved.won.length} cards won`,
-      ),
+      h("strong", {}, m.home.resume),
+      h("span", {}, m.home.resumeDetail(saved.config.mode, saved.round, saved.won.length)),
     )
     : null;
+
+  const modeCard = (mode: Mode, text: string) =>
+    h(
+      "button",
+      { type: "button", class: "mode-card", "data-mode": mode, onclick: () => callbacks.onStart(mode) },
+      h("strong", {}, m.game.modeName(mode)),
+      h("span", {}, text),
+    );
+  const tutorialCard = h(
+    "button",
+    { type: "button", class: "mode-card tutorial-card", "data-mode": "tutorial", onclick: callbacks.onTutorial },
+    h("strong", {}, m.home.tutorialTitle),
+    h("span", {}, m.home.tutorialText),
+  );
 
   return h(
     "main",
@@ -113,40 +115,52 @@ export function renderHome(settings: Settings, saved: GameState | null, callback
         ...[0, 1, 2].map((c) => h("span", { class: `logo-character c${c}`, html: characterSvg(c) })),
       ),
       h("h1", {}, "Trilemma"),
-      h("p", { class: "tagline" }, "Three characters. Nine cells. Too many rules."),
+      h("p", { class: "tagline" }, m.home.tagline),
     ),
     resume,
     h(
       "nav",
-      { class: "modes", "aria-label": "New game" },
-      ...MODES.map(({ mode, title, text }) =>
-        h(
-          "button",
-          { type: "button", class: "mode-card", "data-mode": mode, onclick: () => callbacks.onStart(mode) },
-          h("strong", {}, title),
-          h("span", {}, text),
-        )
-      ),
+      { class: "modes", "aria-label": m.home.newGameConfirm },
+      current.tutorialDone ? null : tutorialCard,
+      modeCard("classic", m.home.classicText),
+      modeCard("challenge", m.home.challengeText),
     ),
     h(
       "section",
-      { class: "settings", "aria-label": "Settings" },
+      { class: "settings", "aria-label": m.home.language },
+      segmented<Lang>(
+        "lang",
+        m.home.language,
+        LANGS.map((value) => ({ value, label: MESSAGES[value].languageName })),
+        lang,
+        (value) => update({ lang: value }),
+      ),
       segmented<DeckChoice>(
         "deck",
-        "Deck",
-        [{ value: "base", label: "Base · 55" }, { value: "full", label: "Full · 91" }],
+        m.home.deck,
+        [{ value: "base", label: m.home.deckBase }, { value: "full", label: m.home.deckFull }],
         current.deck,
         (deck) => update({ deck }),
       ),
       segmented<number | null>(
         "timer",
-        "Classic timer",
-        TIMER_CHOICES.map((value) => ({ value, label: value === null ? "Off" : `${value / 60} min` })),
+        m.home.timer,
+        TIMER_CHOICES.map((value) => ({
+          value,
+          label: value === null ? m.home.timerOff : m.home.timerMinutes(value / 60),
+        })),
         current.timerSeconds,
         (timerSeconds) => update({ timerSeconds }),
       ),
     ),
-    h("a", { class: "btn btn-ghost rules-link", href: "#/rules" }, "How to play"),
+    h(
+      "div",
+      { class: "home-links" },
+      h("a", { class: "btn btn-ghost", href: "#/rules" }, m.home.howToPlay),
+      current.tutorialDone
+        ? h("button", { type: "button", class: "btn btn-ghost", onclick: callbacks.onTutorial }, m.home.tutorialTitle)
+        : null,
+    ),
     records,
   );
 }

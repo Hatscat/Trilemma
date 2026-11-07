@@ -288,8 +288,21 @@ p {
   outline-offset: 2px;
 }
 
-.rules-link {
-  align-self: center;
+.home-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tutorial-card {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 4px 0 #c9921a;
+}
+
+.tutorial-card span {
+  color: rgba(58, 42, 0, 0.8);
 }
 
 .records h2 {
@@ -388,8 +401,8 @@ p {
 /* ------------------------------------------------------------- Game frame */
 
 .game {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
 }
 
@@ -447,6 +460,7 @@ p {
 }
 
 .play-area {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -806,6 +820,68 @@ p {
   75% {
     transform: translateX(-3px);
   }
+}
+
+/* --------------------------------------------------------------- Tutorial */
+
+.coach {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 6px 12px 0;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+
+.coach-text {
+  flex: 1 1 220px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.coach .btn {
+  min-height: 38px;
+  margin-left: auto;
+}
+
+.is-tutorial .stats,
+.is-tutorial .clock,
+.is-tutorial .card-slot.is-empty {
+  display: none;
+}
+
+@keyframes coach-pulse {
+  0%,
+  100% {
+    outline-color: rgba(255, 201, 77, 1);
+    outline-offset: 3px;
+  }
+  50% {
+    outline-color: rgba(255, 201, 77, 0.3);
+    outline-offset: 7px;
+  }
+}
+
+.game[data-coach~="tray"] .tray-slot,
+.game[data-coach~="board"] .board-cells,
+.game[data-coach~="cards"] .card,
+.game[data-coach~="zoom"] .card-zoom,
+.game[data-coach~="first-card"] .card-slot[data-slot="0"] .card,
+.game[data-coach~="second-card"] .card-slot[data-slot="1"] .card,
+.game[data-coach~="check"] [data-action="check"]:not(:disabled),
+.game[data-coach~="lock-in"] [data-action="lock-in"],
+.game[data-coach~="demonstrate"] [data-action="demonstrate"]:not(:disabled) {
+  outline: 3px solid var(--accent);
+  animation: coach-pulse 1.4s ease-in-out infinite;
+}
+
+.game[data-coach~="zoom"] .card-zoom {
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 /* ------------------------------------------------------------- Action bar */

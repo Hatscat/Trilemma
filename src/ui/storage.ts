@@ -5,6 +5,7 @@
 
 import type { DeckChoice } from "../core/cards.ts";
 import { type GameState, type GameSummary, isGameState, type Mode } from "../core/game.ts";
+import { isLang, type Lang } from "../i18n/index.ts";
 
 const KEYS = {
   settings: "trilemma.settings.v1",
@@ -43,16 +44,20 @@ export interface Settings {
   readonly deck: DeckChoice;
   /** Classic mode timer in seconds, `null` = no timer. */
   readonly timerSeconds: number | null;
+  /** Chosen language, `null` = follow the browser. */
+  readonly lang: Lang | null;
+  readonly tutorialDone: boolean;
 }
 
 export const TIMER_CHOICES: readonly (number | null)[] = [null, 60, 120, 180, 300];
-const DEFAULT_SETTINGS: Settings = { deck: "base", timerSeconds: null };
 
 export function loadSettings(): Settings {
   const s = read<Partial<Settings>>(KEYS.settings);
   return {
-    deck: s?.deck === "full" ? "full" : DEFAULT_SETTINGS.deck,
+    deck: s?.deck === "full" ? "full" : "base",
     timerSeconds: TIMER_CHOICES.includes(s?.timerSeconds ?? null) ? s?.timerSeconds ?? null : null,
+    lang: isLang(s?.lang) ? s.lang : null,
+    tutorialDone: s?.tutorialDone === true,
   };
 }
 

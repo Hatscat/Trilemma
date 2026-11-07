@@ -1,18 +1,21 @@
 /// <reference types="./env.d.ts" />
 /**
- * Entry point: hash router (#/, #/play, #/rules), persistence and service worker registration.
+ * Entry point: hash router (#/, #/play, #/rules, #/tutorial), language, persistence and
+ * service worker registration.
  * Add `?seed=<number>` to the URL to make new games deterministic (tests, shared puzzles).
  */
 
 import { type GameState, type Mode, newGame, shiftTime } from "./core/game.ts";
 import { randomSeed } from "./core/rng.ts";
+import { detectLanguage, type Lang, setLanguage, t } from "./i18n/index.ts";
 import { confirmDialog } from "./ui/dialogs.ts";
 import { h } from "./ui/dom.ts";
 import { GameView } from "./ui/game-view.ts";
 import { renderHome } from "./ui/home.ts";
 import { renderRules } from "./ui/rules.ts";
 import { spriteMarkup } from "./ui/sprite.ts";
-import { loadGame, loadSettings, saveGame, saveSettings } from "./ui/storage.ts";
+import { loadGame, loadSettings, saveGame, saveSettings, type Settings } from "./ui/storage.ts";
+import { Tutorial } from "./ui/tutorial.ts";
 
 const app = document.getElementById("app")!;
 document.body.insertAdjacentHTML("afterbegin", spriteMarkup());
@@ -20,7 +23,22 @@ document.body.insertAdjacentHTML("afterbegin", spriteMarkup());
 let settings = loadSettings();
 /** The game in memory (also saved to localStorage when available). */
 let current: GameState | null = null;
-let view: GameView | null = null;
+let screen: { destroy(): void } | null = null;
+
+function language(): Lang {
+  return settings.lang ?? detectLanguage(navigator.languages ?? [navigator.language]);
+}
+setLanguage(language());
+
+function updateSettings(next: Settings): void {
+  const languageChanged = next.lang !== settings.lang;
+  settings = next;
+  saveSettings(next);
+  if (languageChanged) {
+    setLanguage(language());
+    route();
+  }
+}
 
 function loadCurrent(): GameState | null {
   if (current) return current;
@@ -45,11 +63,12 @@ function seedFromUrl(): number | null {
 async function startGame(mode: Mode): Promise<void> {
   const existing = loadCurrent();
   if (existing && existing.phase.name !== "over") {
+    const m = t().home;
     const replace = await confirmDialog({
-      title: "Start a new game?",
-      message: "The game in progress will be lost.",
-      confirm: "New game",
-      cancel: "Cancel",
+      title: m.newGameTitle,
+      message: m.newGameMessage,
+      confirm: m.newGameConfirm,
+      cancel: m.cancel,
     });
     if (!replace) return;
   }
@@ -67,15 +86,15 @@ function navigate(hash: string): void {
   else location.hash = hash;
 }
 
-function show(element: HTMLElement, title: string): void {
+function show(element: HTMLElement, title?: string): void {
   app.replaceChildren(element);
-  document.title = title;
+  document.title = title ? `Trilemma · ${title}` : "Trilemma";
   globalThis.scrollTo(0, 0);
 }
 
 function route(): void {
-  view?.destroy();
-  view = null;
+  screen?.destroy();
+  screen = null;
   const hash = location.hash || "#/";
   if (hash === "#/play") {
     const state = loadCurrent();
@@ -83,25 +102,34 @@ function route(): void {
       navigate("#/");
       return;
     }
-    view = new GameView(state, {
+    const view = new GameView(state, {
       onExit: () => navigate("#/"),
       onChange: persist,
       onPlayAgain: (mode) => void startGame(mode),
     });
-    show(view.root, "Trilemma · Playing");
-  } else if (hash === "#/rules") {
-    show(renderRules(() => navigate("#/")), "Trilemma · How to play");
-  } else {
-    const home = renderHome(settings, loadCurrent(), {
-      onStart: (mode) => void startGame(mode),
-      onResume: () => navigate("#/play"),
-      onSettingsChange: (next) => {
-        settings = next;
-        saveSettings(next);
+    screen = view;
+    show(view.root, t().game.modeName(state.config.mode));
+  } else if (hash === "#/tutorial") {
+    const tutorial = new Tutorial({
+      onExit: () => navigate("#/"),
+      onFinish: () => {
+        updateSettings({ ...settings, tutorialDone: true });
+        navigate("#/");
       },
     });
+    screen = tutorial;
+    show(tutorial.root, t().game.modeName("tutorial"));
+  } else if (hash === "#/rules") {
+    show(renderRules(() => navigate("#/")), t().rules.title);
+  } else {
+    const home = renderHome(settings, language(), loadCurrent(), {
+      onStart: (mode) => void startGame(mode),
+      onResume: () => navigate("#/play"),
+      onTutorial: () => navigate("#/tutorial"),
+      onSettingsChange: updateSettings,
+    });
     home.append(h("footer", { class: "version" }, `Trilemma v${__APP_VERSION__}`));
-    show(home, "Trilemma");
+    show(home);
   }
 }
 

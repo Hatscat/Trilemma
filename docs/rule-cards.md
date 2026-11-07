@@ -40,7 +40,7 @@
   3   ▓   ░   ▓
   ```
 
-- Characters: **★ Star** (purple, five-pointed, one eye), **● Circle** (green, two eyes), **■ Square** (orange, three
+- Characters: **★ Star** (purple, five-pointed, one eye), **● Circle** (green, two eyes), **■ Square** (red, three
   eyes). Shape and eye count tell them apart even without color (color-blind friendly). In card texts, the grid squares
   are always called **cells** to avoid any confusion with the Square character.
 - A legal arrangement always has **exactly one character per row and per column**. There are 36 of them.
