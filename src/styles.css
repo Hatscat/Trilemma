@@ -525,7 +525,7 @@ p {
 
 .cell.dark {
   /* Stripes as well as color, so dark cells stand out for color-blind players and in grayscale. */
-  background: repeating-linear-gradient(-45deg, rgba(125, 100, 64, 0.38) 0 2.5px, transparent 2.5px 8.5px),
+  background: repeating-linear-gradient(45deg, rgba(125, 100, 64, 0.38) 0 2.5px, transparent 2.5px 8.5px),
     var(--cell-dark);
 }
 
