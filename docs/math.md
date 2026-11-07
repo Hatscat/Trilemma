@@ -164,8 +164,8 @@ contains no card that tells two arrangements apart. For example, a table without
 distinguish arrangements that only differ by their columns.
 
 This is not what makes players tie. Player ties happen when several players find the max, which depends on skill and
-time, not on how many solutions exist. Only playtests can measure it, and the priority tokens exist to resolve it. Two
-consequences for the PWA:
+time, not on how many solutions exist. Only playtests can measure it. Ties between equal bids are broken by lock-in
+order: the player who locked in first demonstrates first. Two consequences for the PWA:
 
 - **Validation** must accept _any_ compatible group of the bid size, never a single expected answer.
 - **Challenge mode** should accept any group reaching the max, and can show "other solutions exist" afterwards.
@@ -187,8 +187,8 @@ max cards, because those cards cannot contain anything incompatible. Missing car
 - Cards left on the table after a round are all false for the winning arrangement. This does not bias later rounds: 6.58
   cards won per full-table round, against 6.60 for a fresh random draw.
 - The table always ends up empty, because a single card can always be satisfied.
-- Rough duration, assuming a 2-minute timer plus about 1 minute of demonstration: **about 25–30 minutes** for the base
-  deck and about 45 minutes for the full deck. To be confirmed in playtests.
+- Rough duration, assuming about 2 minutes of search plus about 1 minute of demonstration: **about 25–30 minutes** for
+  the base deck and about 45 minutes for the full deck. To be confirmed in playtests.
 - The simulation assumes perfect players. Real players will often bid max − 1, so slightly fewer cards are won per round
   and games are slightly longer.
 

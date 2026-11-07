@@ -40,8 +40,9 @@
   3   ▓   ░   ▓
   ```
 
-- Characters: **★ Star** (purple, five-pointed, one eye), **● Circle** (green, two eyes), **■ Square** (red, three
-  eyes). In card texts, the grid squares are always called **cells** to avoid any confusion with the Square character.
+- Characters: **★ Star** (purple, five-pointed, one eye), **● Circle** (green, two eyes), **■ Square** (orange, three
+  eyes). Shape and eye count tell them apart even without color (color-blind friendly). In card texts, the grid squares
+  are always called **cells** to avoid any confusion with the Square character.
 - A legal arrangement always has **exactly one character per row and per column**. There are 36 of them.
 
 ## Writing principles
@@ -58,16 +59,15 @@
 
 ## Card anatomy
 
-Each card has a **symbol side** (main face, inspired by the clue tiles of _Einstein Riddle Island Puzzle_) and a **text
-side** (one sentence, used to check or learn the meaning).
+All the information is on **one face**:
 
-> **Physical design issue.** If both sides carry information, the top card of the face-down draw pile shows its text
-> side, so everyone knows the next rule in advance. Options:
->
-> - **(Recommended)** Symbol and a small text caption on the same face, plain common back.
-> - Keep the double-sided cards and draw them from an opaque bag or box.
->
-> In the PWA, the text appears when a card is tapped (like the help pop-up of the inspiration app).
+- the **symbolic drawing**, the main element, inspired by the clue tiles of _Einstein Riddle Island Puzzle_;
+- a **caption** below it: the rule in one short sentence, to check or learn the meaning.
+
+The **back is plain and identical for all cards**, base and expert alike, so the face-down draw pile reveals nothing and
+both decks can be shuffled together. A small mark on the face identifies expert cards.
+
+In the PWA, a click or a tap on a card zooms in on it so the caption is easy to read.
 
 Suggested frame colors by family group (to make the 3 × 3 layout easy to scan): **position** (row, column, cell),
 **shade** (shade, count), **relation** (above, left of, touching, distances), **expert** (cross references).
@@ -76,7 +76,7 @@ Suggested frame colors by family group (to make the 3 × 3 layout easy to scan):
 
 | Notation           | Meaning on the card                                                                                                                         |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `★` `●` `■`        | The character (colored token with its face).                                                                                                |
+| `★` `●` `■`        | The character (its colored shape with its face).                                                                                            |
 | `(1)` `(A)`        | Row / column badge (like the green row and column badges of the board). Left of `=`: "the character in row 1". Right of `=`: "is in row 1". |
 | `▓` `░`            | Dark / light cell tile.                                                                                                                     |
 | `=`                | "is" / "stands on" (links two attributes of the same character, Einstein-style).                                                            |

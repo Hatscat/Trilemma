@@ -2,9 +2,9 @@
 
 ## Project
 
-A simultaneous logic game (PWA, later also a tabletop game). Players compose the largest group of mutually compatible
-rule cards for 3 characters on a 3 × 3 board. Inspired by Set, Einstein's riddle (Zebra puzzle) and _Einstein Riddle
-Island Puzzle_ (Black Puma Labs).
+**Trilemma**: a simultaneous logic game for 1 to 8 players (PWA, later also a tabletop game). Players compose the
+largest group of mutually compatible rule cards for 3 characters on a 3 × 3 board. Inspired by Set, Einstein's riddle
+(Zebra puzzle) and _Einstein Riddle Island Puzzle_ (Black Puma Labs).
 
 - Game rules and modes: [README.md](README.md)
 - Rule cards (design, families, full list): [docs/rule-cards.md](docs/rule-cards.md)
@@ -24,7 +24,7 @@ Island Puzzle_ (Black Puma Labs).
 
 - Board: rows `1–3` (top to bottom), columns `A–C` (left to right), cell name = column + row (`C1` = top right).
   Internally 0-based indices. Dark cells: corners and center (`(row + col)` even), light cells: edge middles.
-- Characters, in canonical order: Star (purple, 1 eye), Circle (green, 2 eyes), Square (red, 3 eyes). In texts, grid
+- Characters, in canonical order: Star (purple, 1 eye), Circle (green, 2 eyes), Square (orange, 3 eyes). In texts, grid
   squares are always called **cells**, never "squares".
 - Arrangement: exactly one character per row and per column, so 36 arrangements in total.
 - Rule card = a predicate over arrangements. A group of cards is compatible if one arrangement satisfies them all.
@@ -33,6 +33,12 @@ Island Puzzle_ (Black Puma Labs).
   - Every arrangement satisfies exactly 24 of the 55 base cards (36 of the 91 cards with the expert deck).
   - A draw often has several optimal arrangements and groups. Validation must accept any compatible group, never one
     expected answer.
+- Round rules that drive the implementation (full rules in README):
+  - Bids are strict: a demonstration shows exactly the bid number of cards. One false card, or too few cards, makes the
+    whole demonstration invalid. The next player then demonstrates with their own unchanged bid.
+  - Ties between equal bids go to the player who locked in first (lock-in timestamp in the PWA). No randomness, no
+    priority tokens.
+  - If every demonstration fails, nobody scores and the same face-up cards go back to a new search.
 
 ## Card catalog rules
 
