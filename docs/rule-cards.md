@@ -74,18 +74,18 @@ Suggested frame colors by family group (to make the 3 × 3 layout easy to scan):
 
 ### Visual vocabulary
 
-| Notation           | Meaning on the card                                                                                                                         |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `★` `●` `■`        | The character (its colored shape with its face).                                                                                            |
-| `(1)` `(A)`        | Row / column badge (like the green row and column badges of the board). Left of `=`: "the character in row 1". Right of `=`: "is in row 1". |
-| `▓` `░`            | Dark (striped) / light cell tile.                                                                                                           |
-| `=`                | "is" / "stands on" (links two attributes of the same character, Einstein-style).                                                            |
-| `[C1]`             | Mini-map of the board with cell C1 highlighted and a generic character silhouette on it.                                                    |
-| `X ┆ Y`            | Vertical strip, X on top and Y at the bottom: X is above Y.                                                                                 |
-| `X ┄ Y`            | Horizontal strip: X is to the left of Y.                                                                                                    |
-| `X ⤡ Y`            | 2 × 2 mini-grid with X and Y in opposite corners: they touch at a corner.                                                                   |
-| `X ↕1 Y`, `X ↔1 Y` | X and Y are in neighboring rows / neighboring columns.                                                                                      |
-| `2 × ░`            | Two characters stand on light cells.                                                                                                        |
+| Notation           | Meaning on the card                                                                                                                                                                                                                |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `★` `●` `■`        | The character (its colored shape with its face).                                                                                                                                                                                   |
+| `(1)` `(A)`        | Row badge: a lying cylinder with the row number. Column badge: a standing cylinder with the column letter. The shape tells rows and columns apart at a glance. Left of `=`: "the character in row 1". Right of `=`: "is in row 1". |
+| `▓` `░`            | Dark (striped) / light cell tile.                                                                                                                                                                                                  |
+| `=`                | "is" / "stands on" (links two attributes of the same character, Einstein-style).                                                                                                                                                   |
+| `[C1]`             | Mini-map of the board with cell C1 highlighted and a generic character silhouette on it.                                                                                                                                           |
+| `X ┆ Y`            | Vertical strip, X on top and Y at the bottom: X is above Y.                                                                                                                                                                        |
+| `X ┄ Y`            | Horizontal strip: X is to the left of Y.                                                                                                                                                                                           |
+| `X ⤡ Y`            | 2 × 2 mini-grid with X and Y in opposite corners: they touch at a corner.                                                                                                                                                          |
+| `X ↕1 Y`, `X ↔1 Y` | X and Y are in neighboring rows / neighboring columns.                                                                                                                                                                             |
+| `2 × ░`            | Two characters stand on light cells.                                                                                                                                                                                               |
 
 ## Families
 
