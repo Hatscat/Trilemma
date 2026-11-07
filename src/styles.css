@@ -603,6 +603,15 @@ p {
   border-color: transparent;
 }
 
+.is-imagining .tray-slot {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.is-imagining .board-cells .cell {
+  cursor: not-allowed;
+}
+
 .tray-slot.is-active {
   border-color: var(--accent);
   background: rgba(255, 201, 77, 0.12);

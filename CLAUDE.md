@@ -67,6 +67,8 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
   - Ties between equal bids go to the player who locked in first (lock-in timestamp in the PWA). No randomness, no
     priority tokens.
   - If every demonstration fails, nobody scores and the same face-up cards go back to a new search.
+  - Classic mode: the search is mental, as in the tabletop game. Moving characters and selecting cards is only possible
+    in the `demonstrate` phase (`canEditBoard` in `game.ts`). Challenge mode allows them while searching.
 
 ## Card catalog rules
 

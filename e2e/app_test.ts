@@ -124,11 +124,22 @@ Deno.test({
         const shown = await page.$$eval(".card[data-card-id]", (els) => els.map((e) => e.getAttribute("data-card-id")));
         assertEquals(shown, game.table);
 
-        await placeArrangement(page, arrangement);
-        await selectCards(page, cards);
+        // The search happens in the head: the board and the cards are locked until the bid.
+        assertEquals(await page.getAttribute('[data-cell="0"]', "aria-disabled"), "true");
+        await page.click('[data-tray-slot="0"]', { force: true });
+        await page.click('[data-cell="0"]', { force: true });
+        await page.click(`.card[data-card-id="${cards[0]}"]`, { force: true });
+        assertEquals(await page.getAttribute('[data-cell="0"]', "data-occupant"), "null");
+        assertEquals(await page.getAttribute(`.card[data-card-id="${cards[0]}"]`, "aria-pressed"), "false");
+        assertEquals(await page.locator('[data-action="clear"]').count(), 0);
         await screenshot(page, "02-classic-search");
+
         await lockInBid(page, cards.length);
         assertStringIncludes(await status(page), `Bid: ${cards.length}`);
+        assertEquals(await page.textContent(".target-number"), String(cards.length), "the bid is shown at the top");
+        await placeArrangement(page, arrangement);
+        await selectCards(page, cards);
+        await screenshot(page, "02b-classic-demonstration");
         await page.click('[data-action="demonstrate"]');
         await page.waitForSelector('[data-action="next-round"]');
         assertStringIncludes(await status(page), `Valid demonstration! +${cards.length}`);
@@ -148,9 +159,9 @@ Deno.test({
         const { page } = session;
         await page.goto(home);
         await page.click('[data-mode="classic"]');
+        await lockInBid(page, cards.length);
         await placeArrangement(page, arrangement);
         await selectCards(page, [...cards.slice(1), falseCard]);
-        await lockInBid(page, cards.length);
         await page.click('[data-action="demonstrate"]');
         await page.waitForSelector('[data-action="next-round"]');
         assertStringIncludes(await status(page), `Card ${getCard(falseCard).number} is false`);
@@ -327,16 +338,18 @@ Deno.test({
         const arrangement = analyzeTable(lesson3).optimal[0];
         const good = trueCards(lesson3, arrangement);
         const bad = lesson3.find((id) => !isCardTrue(id, arrangement))!;
-        await placeArrangement(page, arrangement);
-        await selectCards(page, [...good.slice(1), bad]);
+        await page.click('[data-cell="0"]', { force: true }); // Locked while searching.
+        assertEquals(await page.getAttribute('[data-cell="0"]', "data-occupant"), "null");
         await lockInBid(page, 4);
         await step("prove");
+        await placeArrangement(page, arrangement);
+        await selectCards(page, [...good.slice(1), bad]);
         await page.click('[data-action="demonstrate"]');
         await step("retry");
         await page.click('[data-action="next-round"]');
         await step("lockIn");
-        await solveLesson(2, false);
         await lockInBid(page, 4);
+        await solveLesson(2, false);
         await page.click('[data-action="demonstrate"]');
         await step("classicDone");
         await screenshot(page, "13-tutorial-done");
@@ -351,7 +364,7 @@ Deno.test({
         const session = await newPage(browser, { width: 1280, height: 800 });
         const { page } = session;
         await page.goto(home);
-        await page.click('[data-mode="classic"]');
+        await page.click('[data-mode="challenge"]');
         const from = (await page.locator('[data-tray-slot="1"]').boundingBox())!;
         const to = (await page.locator('[data-cell="4"]').boundingBox())!;
         await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
@@ -366,14 +379,23 @@ Deno.test({
       });
 
       await t.step("card zoom shows a readable caption", async () => {
-        const game = expectedGame("classic");
-        const id = game.table[0]!;
+        const id = expectedGame("challenge").table[0]!;
         const session = await newPage(browser);
         const { page } = session;
         await page.goto(home);
+
+        // Classic search: the zoom only reads the card, selecting comes after the bid.
         await page.click('[data-mode="classic"]');
         await page.click(`[data-zoom="${id}"]`);
         assertEquals(await page.textContent(".zoom-text"), getCard(id).text);
+        assertEquals(await page.locator(".zoom-dialog .btn-primary").count(), 0);
+        await page.click(".zoom-dialog .btn-ghost"); // Close
+        await page.click('[data-action="exit"]');
+
+        // Challenge: the zoom can select the card.
+        await page.click('[data-mode="challenge"]');
+        await page.click(".dialog-actions .btn-primary"); // Confirm the new game
+        await page.click(`[data-zoom="${id}"]`);
         await screenshot(page, "07-zoom");
         await page.click(".zoom-dialog .btn-primary"); // Select
         assertEquals(await page.getAttribute(`.card[data-card-id="${id}"]`, "aria-pressed"), "true");

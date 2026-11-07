@@ -96,7 +96,8 @@ export interface Messages {
     readonly bestGroup: string;
     readonly myArrangement: string;
     readonly searchClassic: string;
-    readonly searchClassicDetail: (selected: number, placed: number) => string;
+    /** Classic search: the board is locked, the player imagines the arrangement. */
+    readonly searchClassicHint: string;
     readonly searchChallenge: (target: number) => string;
     readonly falseCardRetry: (number: number) => string;
     readonly selectedOf: (selected: number, target: number) => string;

@@ -151,8 +151,14 @@ function dealGame(config: GameConfig, order: readonly string[], now: number): Ga
   }, now);
 }
 
-function canEditBoard(state: GameState): boolean {
-  return state.phase.name === "search" || state.phase.name === "demonstrate";
+/**
+ * Whether characters can be moved and cards selected.
+ * Classic mode, like the tabletop game: the search happens in the player's head, so the board and the cards are
+ * locked until the bid is locked in. Challenge mode: they can be used while searching.
+ */
+export function canEditBoard(state: GameState): boolean {
+  const { phase } = state;
+  return phase.name === "demonstrate" || (phase.name === "search" && state.config.mode === "challenge");
 }
 
 function clearFeedback(phase: Phase): Phase {

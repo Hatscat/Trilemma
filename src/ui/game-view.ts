@@ -20,6 +20,7 @@ import {
 } from "../core/board.ts";
 import { getCard } from "../core/cards.ts";
 import {
+  canEditBoard,
   check,
   clearBoard,
   clearSelection,
@@ -309,8 +310,7 @@ export class GameView {
   }
 
   get #editable(): boolean {
-    const phase = this.#state.phase.name;
-    return (phase === "search" || phase === "demonstrate") && !this.#animating;
+    return canEditBoard(this.#state) && !this.#animating;
   }
 
   #showFlash(message: string): void {
@@ -397,6 +397,8 @@ export class GameView {
     const activeCell = active === null ? null : placement[active];
     this.#board.classList.toggle("is-solution", this.#showSolution);
     this.#board.classList.toggle("is-locked", !editable);
+    // Classic search: the arrangement is only imagined, the characters wait in the tray.
+    this.root.classList.toggle("is-imagining", this.#state.phase.name === "search" && !canEditBoard(this.#state));
     for (const [cell, button] of this.#cells.entries()) {
       const occupant = characterAt(placement, cell);
       if (button.dataset.occupant !== String(occupant)) {
@@ -418,6 +420,7 @@ export class GameView {
       button.classList.toggle("is-conflict", conflict);
       button.classList.toggle("is-active", occupant !== null && occupant === active && activeCell === cell);
       button.classList.toggle("has-piece", occupant !== null);
+      button.setAttribute("aria-disabled", String(!editable));
       button.setAttribute("aria-label", m.cellLabel(cellLabel(row, col), isDark(row, col), occupant));
     }
   }
@@ -433,6 +436,7 @@ export class GameView {
         if (offBoard) slot.querySelector("svg")!.dataset.piece = String(c);
       }
       slot.classList.toggle("is-active", offBoard && active === c);
+      slot.setAttribute("aria-disabled", String(!this.#editable));
       slot.setAttribute("aria-label", t().game.traySlotLabel(c, offBoard));
     }
   }
@@ -537,9 +541,9 @@ export class GameView {
         if (s.config.mode === "classic") {
           return {
             status: flash ?? m.searchClassic,
-            detail: m.searchClassicDetail(count, placed),
+            detail: m.searchClassicHint,
             tone: flash ? "bad" : "info",
-            buttons: [clear, { label: m.lockIn, action: "lock-in", primary: true }],
+            buttons: [{ label: m.lockIn, action: "lock-in", primary: true }],
           };
         }
         const missing = missingFor(s.target, count, placed);

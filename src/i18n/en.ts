@@ -94,8 +94,7 @@ export const en: Messages = {
     bestGroup: "Best group",
     myArrangement: "My arrangement",
     searchClassic: "Find the largest group of cards that can all be true at once.",
-    searchClassicDetail: (selected, placed) =>
-      `${selected} ${plural(selected, "card", "cards")} selected · ${placed}/3 characters placed`,
+    searchClassicHint: "Picture the characters in your head: you will place them after your bid.",
     searchChallenge: (target) => `Find ${target} cards that can all be true at once.`,
     falseCardRetry: (number) => `Card ${number} is false for this arrangement. Try again!`,
     selectedOf: (selected, target) => `${selected}/${target} selected`,
@@ -176,7 +175,7 @@ export const en: Messages = {
       { h2: "Classic mode" },
       {
         ol: [
-          "Search the largest compatible group. You can use the board and select cards while you think.",
+          "Search the largest compatible group in your head: the board and the cards stay locked until you bid.",
           "Lock in your bid: the size of your group. It can never change afterwards.",
           "Demonstrate: place the characters and select exactly as many cards as your bid.",
           "All or nothing: if one card is false, the demonstration is void and nobody scores. The same cards stay for the next round.",
@@ -216,9 +215,12 @@ export const en: Messages = {
       largest:
         "Find the largest group of compatible cards. Here, it has 3 cards: place the characters, select 3 cards and press Check.",
       contradictionsDone: "Exactly! In Challenge mode, the game always tells you the size of the largest group.",
-      classicIntro: "In Classic mode, nobody tells you the size of the largest group: you bid it, then you prove it.",
-      lockIn: "Find your best group, then press Lock in and choose your bid. Hint: 4 cards fit together.",
-      prove: "Prove it: place the characters, select exactly as many cards as your bid, then press Demonstrate.",
+      classicIntro:
+        "In Classic mode, nobody tells you the size of the largest group, and the board stays locked while you search: everything happens in your head!",
+      lockIn:
+        "Imagine where the characters could go and find your best group, then press Lock in and choose your bid. Hint: 4 cards fit together.",
+      prove:
+        "Now the board is unlocked. Prove it: place the characters, select exactly as many cards as your bid, then press Demonstrate.",
       retry: "One false card and the whole demonstration is void! Press Next round to try again with the same cards.",
       classicDone: "Bravo, you are ready to play! Bid as high as you can… but only what you can prove.",
     },

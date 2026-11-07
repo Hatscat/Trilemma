@@ -114,9 +114,10 @@ Mobile first, installable and playable offline.
 
 ### Modes
 
-- **Classic.** The timer is optional and its duration is chosen before the game. The player locks in their bid, then
-  builds the demonstration: they place the characters and select exactly as many cards as they bid. The game validates
-  the cards, then reveals the true maximum and an optimal arrangement.
+- **Classic.** The timer is optional and its duration is chosen before the game. As in the tabletop game, the search
+  happens in the player's head: the board and the cards stay locked (cards can still be zoomed). The player locks in
+  their bid, which unlocks the board, then builds the demonstration: they place the characters and select exactly as
+  many cards as they bid. The game validates the cards, then reveals the true maximum and an optimal arrangement.
 - **Challenge** (working name). The game announces the maximum for each round, and the player must find a compatible
   group of that size. Any valid group is accepted, since there are often several.
 - **Tutorial.** Three short lessons played on the real game screen: the board, contradictions, and Classic mode (bid,
@@ -125,8 +126,11 @@ Mobile first, installable and playable offline.
 
 In both modes:
 
-- **Placing characters**: tap a character then a cell, or drag it. Tapping an empty cell places the next character
-  waiting. A character placed in the row or column of another one sends it back to the tray.
+- **Target**: the number of cards to find (Challenge) or the bid (Classic demonstration) is shown in large at the top,
+  with one dot per selected card.
+- **Placing characters** (Challenge search, Classic demonstration): tap a character then a cell, or drag it. Tapping an
+  empty cell places the next character waiting. A character placed in the row or column of another one sends it back to
+  the tray.
 - **Cards**: tap a card to select it. Tap its magnifier (or press and hold the card) to zoom in on it and read its
   caption.
 - **Settings**: language (English, Français, Español; the browser language by default), base deck (55 cards) or full

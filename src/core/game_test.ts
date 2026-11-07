@@ -1,6 +1,7 @@
 import { assert, assertEquals, assertNotEquals, assertThrows } from "@std/assert";
 import { ARRANGEMENTS, arrangementToPlacement } from "./board.ts";
 import {
+  canEditBoard,
   check,
   demonstrate,
   expireTimer,
@@ -54,8 +55,8 @@ Deno.test("a new game deals 9 cards and is deterministic for a seed", () => {
 Deno.test("classic: a valid demonstration wins exactly the bid cards and refills the table", () => {
   let s = newGame(classic, T0);
   const { arrangement, cards } = optimalPlay(s);
-  s = prepare(s, arrangement, cards);
   s = lockIn(s, cards.length);
+  s = prepare(s, arrangement, cards);
   s = demonstrate(s, T0 + 5000);
   assert(s.phase.name === "result");
   const { result } = s.phase;
@@ -78,8 +79,8 @@ Deno.test("classic: one false card voids the whole demonstration and nobody scor
   const { arrangement, cards } = optimalPlay(s);
   const falseCard = tableCards(s).find((id) => !isCardTrue(id, arrangement))!;
   const shown = [...cards.slice(0, cards.length - 1), falseCard];
-  s = prepare(s, arrangement, shown);
   s = lockIn(s, shown.length);
+  s = prepare(s, arrangement, shown);
   s = demonstrate(s, T0);
   assert(s.phase.name === "result");
   assertEquals(s.phase.result.outcome, "failed");
@@ -92,15 +93,28 @@ Deno.test("classic: one false card voids the whole demonstration and nobody scor
   assertEquals(s.round, 2);
 });
 
+Deno.test("classic: the search happens in the head, the board unlocks with the bid", () => {
+  let s = newGame(classic, T0);
+  const { arrangement, cards } = optimalPlay(s);
+  assertEquals(canEditBoard(s), false);
+  assertThrows(() => place(s, 0, 0), GameError);
+  assertThrows(() => toggleCard(s, cards[0]), GameError);
+  s = lockIn(s, cards.length);
+  assertEquals(canEditBoard(s), true);
+  s = prepare(s, arrangement, cards);
+  assertEquals(s.selection.length, cards.length);
+  assertEquals(canEditBoard(newGame(challenge, T0)), true, "challenge mode can use the board while searching");
+});
+
 Deno.test("classic: the bid is strict", () => {
   let s = newGame(classic, T0);
   const { arrangement, cards } = optimalPlay(s);
-  s = prepare(s, arrangement, cards);
   assertThrows(() => demonstrate(s, T0), GameError); // no bid yet
   assertThrows(() => lockIn(s, 0), GameError);
   assertThrows(() => lockIn(s, TABLE_SIZE + 1), GameError);
   s = lockIn(s, cards.length + 1);
   assertThrows(() => lockIn(s, cards.length), GameError); // cannot change a locked bid
+  s = prepare(s, arrangement, cards);
   assertThrows(() => demonstrate(s, T0), GameError); // too few cards selected
 });
 
@@ -152,8 +166,9 @@ Deno.test("a full game with optimal play empties the deck", () => {
     let guard = 0;
     while (s.phase.name !== "over" && guard++ < 100) {
       const { arrangement, cards } = optimalPlay(s);
+      if (mode === "classic") s = lockIn(s, cards.length);
       s = prepare(s, arrangement, cards);
-      s = mode === "classic" ? demonstrate(lockIn(s, cards.length), T0) : check(s, T0);
+      s = mode === "classic" ? demonstrate(s, T0) : check(s, T0);
       s = nextRound(s, T0 + 1000);
     }
     assertEquals(s.phase.name, "over");

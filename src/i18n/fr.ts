@@ -99,8 +99,7 @@ const messages: Messages = {
     bestGroup: "Meilleur groupe",
     myArrangement: "Ma disposition",
     searchClassic: "Trouve le plus grand groupe de cartes qui peuvent être vraies en même temps.",
-    searchClassicDetail: (selected, placed) =>
-      `${selected} carte${s(selected)} sélectionnée${s(selected)} · ${placed}/3 personnages placés`,
+    searchClassicHint: "Imagine les personnages dans ta tête : tu les placeras après ton annonce.",
     searchChallenge: (target) => `Trouve ${target} cartes qui peuvent être vraies en même temps.`,
     falseCardRetry: (number) => `La carte ${number} est fausse pour cette disposition. Réessaie !`,
     selectedOf: (selected, target) => `${selected}/${target} sélectionnée${s(selected)}`,
@@ -181,7 +180,7 @@ const messages: Messages = {
       { h2: "Mode Classique" },
       {
         ol: [
-          "Cherche le plus grand groupe compatible. Tu peux utiliser le plateau et sélectionner des cartes pendant ta réflexion.",
+          "Cherche le plus grand groupe compatible dans ta tête : le plateau et les cartes restent bloqués jusqu’à ton annonce.",
           "Fais ton annonce : la taille de ton groupe. Elle ne pourra plus changer.",
           "Démontre : place les personnages et sélectionne exactement autant de cartes que ton annonce.",
           "Tout ou rien : si une seule carte est fausse, la démonstration est ratée et personne ne marque. Les mêmes cartes restent pour la manche suivante.",
@@ -225,11 +224,11 @@ const messages: Messages = {
         "Trouve le plus grand groupe de cartes compatibles. Ici, il a 3 cartes : place les personnages, sélectionne 3 cartes et appuie sur Vérifier.",
       contradictionsDone: "Exactement ! En mode Défi, le jeu te dit toujours la taille du plus grand groupe.",
       classicIntro:
-        "En mode Classique, personne ne te dit la taille du plus grand groupe : tu l’annonces, puis tu le prouves.",
+        "En mode Classique, personne ne te dit la taille du plus grand groupe, et le plateau reste bloqué pendant la recherche : tout se passe dans ta tête !",
       lockIn:
-        "Trouve ton meilleur groupe, puis appuie sur Annoncer et choisis ton nombre. Indice : 4 cartes vont ensemble.",
+        "Imagine où les personnages pourraient aller et trouve ton meilleur groupe, puis appuie sur Annoncer et choisis ton nombre. Indice : 4 cartes vont ensemble.",
       prove:
-        "Prouve-le : place les personnages, sélectionne exactement autant de cartes que ton annonce, puis appuie sur Démontrer.",
+        "Le plateau est maintenant débloqué. Prouve-le : place les personnages, sélectionne exactement autant de cartes que ton annonce, puis appuie sur Démontrer.",
       retry:
         "Une seule carte fausse et toute la démonstration est ratée ! Appuie sur Manche suivante pour réessayer avec les mêmes cartes.",
       classicDone: "Bravo, tu sais tout ! Annonce le plus possible… mais seulement ce que tu peux prouver.",

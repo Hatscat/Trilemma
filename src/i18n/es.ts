@@ -99,8 +99,7 @@ export const es: Messages = {
     bestGroup: "Mejor grupo",
     myArrangement: "Mi colocación",
     searchClassic: "Encuentra el grupo más grande de cartas que pueden ser verdaderas a la vez.",
-    searchClassicDetail: (selected, placed) =>
-      `${selected} carta${s(selected)} seleccionada${s(selected)} · ${placed}/3 personajes colocados`,
+    searchClassicHint: "Imagina los personajes en tu cabeza: los colocarás después de tu anuncio.",
     searchChallenge: (target) => `Encuentra ${target} cartas que pueden ser verdaderas a la vez.`,
     falseCardRetry: (number) => `La carta ${number} es falsa con esta colocación. ¡Inténtalo de nuevo!`,
     selectedOf: (selected, target) => `${selected}/${target} seleccionada${s(selected)}`,
@@ -181,7 +180,7 @@ export const es: Messages = {
       { h2: "Modo Clásico" },
       {
         ol: [
-          "Busca el grupo compatible más grande. Puedes usar el tablero y seleccionar cartas mientras piensas.",
+          "Busca mentalmente el grupo compatible más grande: el tablero y las cartas están bloqueados hasta tu anuncio.",
           "Haz tu anuncio: el tamaño de tu grupo. Ya no podrá cambiar.",
           "Demuestra: coloca los personajes y selecciona exactamente tantas cartas como tu anuncio.",
           "Todo o nada: si una sola carta es falsa, la demostración falla y nadie puntúa. Las mismas cartas se quedan para la siguiente ronda.",
@@ -224,10 +223,11 @@ export const es: Messages = {
         "Encuentra el grupo más grande de cartas compatibles. Aquí tiene 3 cartas: coloca los personajes, selecciona 3 cartas y pulsa Comprobar.",
       contradictionsDone: "¡Exacto! En el modo Desafío, el juego siempre te dice el tamaño del grupo más grande.",
       classicIntro:
-        "En el modo Clásico, nadie te dice el tamaño del grupo más grande: tú lo anuncias y luego lo demuestras.",
-      lockIn: "Encuentra tu mejor grupo, pulsa Anunciar y elige tu número. Pista: 4 cartas van juntas.",
+        "En el modo Clásico, nadie te dice el tamaño del grupo más grande, y el tablero está bloqueado mientras buscas: ¡todo pasa en tu cabeza!",
+      lockIn:
+        "Imagina dónde podrían ir los personajes y encuentra tu mejor grupo; luego pulsa Anunciar y elige tu número. Pista: 4 cartas van juntas.",
       prove:
-        "Demuéstralo: coloca los personajes, selecciona exactamente tantas cartas como tu anuncio y pulsa Demostrar.",
+        "Ahora el tablero está desbloqueado. Demuéstralo: coloca los personajes, selecciona exactamente tantas cartas como tu anuncio y pulsa Demostrar.",
       retry:
         "¡Una sola carta falsa y toda la demostración falla! Pulsa Siguiente ronda para intentarlo de nuevo con las mismas cartas.",
       classicDone: "¡Bravo, ya sabes jugar! Anuncia lo más alto posible… pero solo lo que puedas demostrar.",
