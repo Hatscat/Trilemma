@@ -327,9 +327,6 @@ Deno.test({
         await screenshot(page, "12-tutorial-place");
         const lesson1 = LESSONS[0].cards;
         await placeArrangement(page, analyzeTable(lesson1).optimal[0]);
-        await step("zoom");
-        await page.click(`[data-zoom="${lesson1[0]}"]`);
-        await page.click(".zoom-dialog .btn-ghost"); // Close
         await step("allThree"); // The Star is already in row 1: that step is skipped.
         await selectCards(page, lesson1);
         await page.click('[data-action="check"]');

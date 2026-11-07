@@ -100,7 +100,6 @@ const messages: Messages = {
     bestGroup: "Meilleur groupe",
     myArrangement: "Ma disposition",
     searchClassic: "Trouve le plus grand groupe de cartes qui peuvent être vraies en même temps.",
-    searchClassicHint: "Imagine les personnages dans ta tête : tu les placeras après ton annonce.",
     searchPractice: (target) => `Trouve ${target} cartes qui peuvent être vraies en même temps.`,
     falseCardRetry: (number) => `La carte ${number} est fausse pour cette disposition. Réessaie !`,
     selectedOf: (selected, target) => `${selected}/${target} sélectionnée${s(selected)}`,
@@ -229,28 +228,20 @@ const messages: Messages = {
     finish: "Terminer",
     quit: "Quitter le tutoriel",
     steps: {
-      meet: "Voici l’Étoile, le Rond et le Carré ! Tu vas les placer sur le plateau.",
-      board:
-        "Le plateau a 3 lignes (1 à 3) et 3 colonnes (A à C). La règle d’or : exactement un personnage par ligne et un par colonne. Un personnage posé réserve sa ligne et sa colonne.",
-      place: "Place les trois personnages : touche un personnage, puis une case. Tu peux aussi les faire glisser.",
-      zoom: "Voici des cartes règles. Touche une loupe pour lire une carte en grand.",
+      meet: "Voici l’Étoile, le Rond et le Carré !",
+      board: "La règle d’or : un seul personnage par ligne et par colonne.",
+      place: "Place les trois personnages : touche-en un, puis une case.",
       starRow1: "Rends la première carte vraie : mets l’Étoile sur la ligne 1.",
-      allThree: "Maintenant, rends les trois cartes vraies en même temps. Sélectionne-les, puis appuie sur Vérifier.",
-      boardDone: "Bravo ! Ces trois cartes sont compatibles : elles peuvent toutes être vraies en même temps.",
-      contradiction:
-        "Certaines règles se contredisent : l’Étoile ne peut pas être sur la ligne 1 et sur la ligne 3 en même temps.",
-      largest:
-        "Trouve le plus grand groupe de cartes compatibles. Ici, il a 3 cartes : place les personnages, sélectionne 3 cartes et appuie sur Vérifier.",
-      contradictionsDone: "Exactement ! En mode Entraînement, le jeu te dit toujours la taille du plus grand groupe.",
-      classicIntro:
-        "En mode Classique, personne ne te dit la taille du plus grand groupe, et le plateau reste bloqué pendant la recherche : tout se passe dans ta tête !",
-      lockIn:
-        "Imagine où les personnages pourraient aller et trouve ton meilleur groupe, puis appuie sur Annoncer et choisis ton nombre. Indice : ici, tu peux annoncer n’importe quel nombre de 1 à 4. Même une petite annonce fait gagner des cartes, si tu la prouves !",
-      prove:
-        "Le plateau est maintenant débloqué. Prouve-le : place les personnages, sélectionne exactement autant de cartes que ton annonce, puis appuie sur Démontrer.",
-      retry:
-        "Une seule carte fausse et toute la démonstration est ratée ! Appuie sur Manche suivante pour réessayer avec les mêmes cartes.",
-      classicDone: "Bravo, tu sais tout ! Annonce le plus possible… mais seulement ce que tu peux prouver.",
+      allThree: "Rends maintenant les trois cartes vraies. Sélectionne-les, puis touche Vérifier.",
+      boardDone: "Bravo ! Ces cartes sont compatibles : toutes vraies en même temps.",
+      contradiction: "Certaines cartes se contredisent : l’Étoile ne peut pas être sur la ligne 1 et sur la ligne 3.",
+      largest: "Trouve le plus grand groupe compatible : ici, 3 cartes.",
+      contradictionsDone: "Exactement ! En mode Entraînement, la taille du plus grand groupe est donnée.",
+      classicIntro: "En mode Classique, tu cherches le plus grand groupe dans ta tête, sans toucher au plateau.",
+      lockIn: "Trouve ton groupe, puis touche Annoncer et choisis ton nombre.",
+      prove: "Prouve-le : place les personnages, sélectionne exactement ce nombre de cartes, puis touche Démontrer.",
+      retry: "Une seule carte fausse et toute la démonstration est ratée ! Touche Manche suivante pour réessayer.",
+      classicDone: "Bravo, tu sais jouer ! Annonce haut… mais seulement ce que tu peux prouver.",
     },
   },
 };

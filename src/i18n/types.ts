@@ -17,7 +17,6 @@ export interface TutorialStepTexts {
   readonly meet: string;
   readonly board: string;
   readonly place: string;
-  readonly zoom: string;
   readonly starRow1: string;
   readonly allThree: string;
   readonly boardDone: string;
@@ -96,8 +95,6 @@ export interface Messages {
     readonly bestGroup: string;
     readonly myArrangement: string;
     readonly searchClassic: string;
-    /** Classic search: the board is locked, the player imagines the arrangement. */
-    readonly searchClassicHint: string;
     readonly searchPractice: (target: number) => string;
     readonly falseCardRetry: (number: number) => string;
     readonly selectedOf: (selected: number, target: number) => string;

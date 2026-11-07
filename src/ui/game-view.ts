@@ -50,7 +50,7 @@ import { characterSvg } from "./sprite.ts";
 import { addFinishedGame } from "./storage.ts";
 
 /** UI events that do not change the game state (used by the tutorial). */
-export type ViewEvent = "zoom" | "revealed";
+export type ViewEvent = "revealed";
 
 export interface GameViewCallbacks {
   /** Back to the menu. */
@@ -546,7 +546,6 @@ export class GameView {
         if (s.config.mode === "classic") {
           return {
             status: flash ?? m.searchClassic,
-            detail: m.searchClassicHint,
             tone: flash ? "bad" : "info",
             buttons: [{ label: m.lockIn, action: "lock-in", primary: true }],
           };
@@ -871,7 +870,6 @@ export class GameView {
       canSelect: this.#editable,
       onToggle: () => this.#apply((s) => toggleCard(s, cardId)),
     });
-    this.#callbacks.onEvent?.("zoom");
   }
 
   async #askBid(forced: boolean): Promise<void> {

@@ -12,17 +12,11 @@ import type { TutorialStepTexts } from "../i18n/types.ts";
 import { h } from "./dom.ts";
 import { GameView, type ViewEvent } from "./game-view.ts";
 
-/** Parts of the game screen that can be highlighted (see `[data-coach]` in styles.css). */
-type Highlight =
-  | "tray"
-  | "board"
-  | "cards"
-  | "zoom"
-  | "first-card"
-  | "second-card"
-  | "check"
-  | "lock-in"
-  | "demonstrate";
+/**
+ * Parts of the game screen that can be highlighted (see `[data-coach]` in styles.css). One thing at a time: a steady
+ * outline for what the coach talks about, a pulse only for the button to press.
+ */
+type Highlight = "tray" | "board" | "first-card" | "second-card" | "check" | "demonstrate";
 
 interface Step {
   readonly text: keyof TutorialStepTexts;
@@ -47,28 +41,28 @@ const SCRIPTS: Record<LessonId, LessonScript> = {
     steps: [
       { text: "meet", highlight: ["tray"] },
       { text: "board", highlight: ["board"] },
-      { text: "place", highlight: ["board", "tray"], done: allPlaced },
-      { text: "zoom", highlight: ["zoom"], done: (_, events) => events.has("zoom") },
+      { text: "place", highlight: ["tray"], done: allPlaced },
       {
         text: "starRow1",
-        highlight: ["first-card", "board"],
+        highlight: ["first-card"],
         done: (s) => s.placement[0] !== null && cellRow(s.placement[0]) === 0,
       },
-      { text: "allThree", highlight: ["cards", "check"], done: won },
+      { text: "allThree", highlight: ["check"], done: won },
     ],
     doneText: "boardDone",
   },
   contradictions: {
     steps: [
       { text: "contradiction", highlight: ["first-card", "second-card"] },
-      { text: "largest", highlight: ["cards", "check"], done: won },
+      { text: "largest", highlight: ["check"], done: won },
     ],
     doneText: "contradictionsDone",
   },
   classic: {
     steps: [
       { text: "classicIntro" },
-      { text: "lockIn", highlight: ["lock-in"], done: (s) => s.phase.name !== "search" },
+      // No highlight: "Lock in" already pulses during a classic search.
+      { text: "lockIn", done: (s) => s.phase.name !== "search" },
       { text: "prove", highlight: ["demonstrate"], done: won },
     ],
     doneText: "classicDone",

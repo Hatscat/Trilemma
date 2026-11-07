@@ -100,7 +100,6 @@ export const es: Messages = {
     bestGroup: "Mejor grupo",
     myArrangement: "Mi colocación",
     searchClassic: "Encuentra el grupo más grande de cartas que pueden ser verdaderas a la vez.",
-    searchClassicHint: "Imagina los personajes en tu cabeza: los colocarás después de tu anuncio.",
     searchPractice: (target) => `Encuentra ${target} cartas que pueden ser verdaderas a la vez.`,
     falseCardRetry: (number) => `La carta ${number} es falsa con esta colocación. ¡Inténtalo de nuevo!`,
     selectedOf: (selected, target) => `${selected}/${target} seleccionada${s(selected)}`,
@@ -228,27 +227,20 @@ export const es: Messages = {
     finish: "Terminar",
     quit: "Salir del tutorial",
     steps: {
-      meet: "¡Te presento a la Estrella, el Círculo y el Cuadrado! Vas a colocarlos en el tablero.",
-      board:
-        "El tablero tiene 3 filas (1 a 3) y 3 columnas (A a C). La regla de oro: exactamente un personaje por fila y uno por columna. Un personaje colocado reserva su fila y su columna.",
-      place: "Coloca los tres personajes: toca un personaje y luego una casilla. También puedes arrastrarlos.",
-      zoom: "Estas son cartas de reglas. Toca una lupa para ver una carta en grande.",
-      starRow1: "Haz que la primera carta sea verdadera: lleva la Estrella a la fila 1.",
-      allThree: "Ahora haz que las tres cartas sean verdaderas a la vez. Selecciónalas y pulsa Comprobar.",
-      boardDone: "¡Bien hecho! Estas tres cartas son compatibles: pueden ser verdaderas a la vez.",
-      contradiction: "Algunas reglas se contradicen: la Estrella no puede estar en la fila 1 y en la fila 3 a la vez.",
-      largest:
-        "Encuentra el grupo más grande de cartas compatibles. Aquí tiene 3 cartas: coloca los personajes, selecciona 3 cartas y pulsa Comprobar.",
-      contradictionsDone: "¡Exacto! En el modo Práctica, el juego siempre te dice el tamaño del grupo más grande.",
-      classicIntro:
-        "En el modo Clásico, nadie te dice el tamaño del grupo más grande, y el tablero está bloqueado mientras buscas: ¡todo pasa en tu cabeza!",
-      lockIn:
-        "Imagina dónde podrían ir los personajes y encuentra tu mejor grupo; luego pulsa Anunciar y elige tu número. Pista: aquí puedes anunciar cualquier número del 1 al 4. ¡Incluso un anuncio pequeño gana cartas, si lo demuestras!",
-      prove:
-        "Ahora el tablero está desbloqueado. Demuéstralo: coloca los personajes, selecciona exactamente tantas cartas como tu anuncio y pulsa Demostrar.",
-      retry:
-        "¡Una sola carta falsa y toda la demostración falla! Pulsa Siguiente ronda para intentarlo de nuevo con las mismas cartas.",
-      classicDone: "¡Bravo, ya sabes jugar! Anuncia lo más alto posible… pero solo lo que puedas demostrar.",
+      meet: "¡Te presento a la Estrella, el Círculo y el Cuadrado!",
+      board: "La regla de oro: un solo personaje por fila y por columna.",
+      place: "Coloca los tres personajes: toca uno y luego una casilla.",
+      starRow1: "Haz que la primera carta sea verdadera: pon la Estrella en la fila 1.",
+      allThree: "Ahora haz verdaderas las tres cartas. Selecciónalas y toca Comprobar.",
+      boardDone: "¡Bien hecho! Estas cartas son compatibles: todas verdaderas a la vez.",
+      contradiction: "Algunas cartas se contradicen: la Estrella no puede estar en la fila 1 y en la fila 3.",
+      largest: "Encuentra el grupo compatible más grande: aquí, 3 cartas.",
+      contradictionsDone: "¡Exacto! En el modo Práctica, se indica el tamaño del grupo más grande.",
+      classicIntro: "En el modo Clásico, buscas el grupo más grande en tu cabeza, sin tocar el tablero.",
+      lockIn: "Encuentra tu grupo, luego toca Anunciar y elige tu número.",
+      prove: "Demuéstralo: coloca los personajes, selecciona exactamente ese número de cartas y toca Demostrar.",
+      retry: "¡Una sola carta falsa y toda la demostración falla! Toca Siguiente ronda para intentarlo de nuevo.",
+      classicDone: "¡Bravo, ya sabes jugar! Anuncia alto… pero solo lo que puedas demostrar.",
     },
   },
 };

@@ -642,13 +642,6 @@ p {
   border-radius: 50%;
   border: 3px dashed var(--active-color);
   background: color-mix(in srgb, var(--active-color) 18%, transparent);
-  animation: target-breathe 1.4s ease-in-out infinite;
-}
-
-@keyframes target-breathe {
-  50% {
-    transform: scale(0.88);
-  }
 }
 
 /* …and the cells reserved by another character are locked. */
@@ -757,7 +750,6 @@ p {
 .tray-slot.is-return {
   border-color: var(--accent);
   background: rgba(255, 201, 77, 0.12);
-  animation: target-breathe 1.4s ease-in-out infinite;
 }
 
 .is-dragging .piece {
@@ -1068,34 +1060,23 @@ p {
   display: none;
 }
 
-@keyframes coach-pulse {
-  0%,
-  100% {
-    outline-color: rgba(255, 201, 77, 1);
-    outline-offset: 3px;
-  }
-  50% {
-    outline-color: rgba(255, 201, 77, 0.3);
-    outline-offset: 7px;
-  }
-}
-
-.game[data-coach~="tray"] .tray-slot,
+/* Tutorial: one thing at a time. What the coach talks about gets a steady outline… */
+.game[data-coach~="tray"] .tray,
 .game[data-coach~="board"] .board-cells,
-.game[data-coach~="cards"] .card,
-.game[data-coach~="zoom"] .card-zoom,
 .game[data-coach~="first-card"] .card-slot[data-slot="0"] .card,
-.game[data-coach~="second-card"] .card-slot[data-slot="1"] .card,
-.game[data-coach~="check"] [data-action="check"]:not(:disabled),
-.game[data-coach~="lock-in"] [data-action="lock-in"],
-.game[data-coach~="demonstrate"] [data-action="demonstrate"]:not(:disabled) {
+.game[data-coach~="second-card"] .card-slot[data-slot="1"] .card {
   outline: 3px solid var(--accent);
-  animation: coach-pulse 1.4s ease-in-out infinite;
+  outline-offset: 4px;
 }
 
-.game[data-coach~="zoom"] .card-zoom {
-  background: var(--accent);
-  color: var(--accent-ink);
+.game[data-coach~="tray"] .tray {
+  border-radius: 16px;
+}
+
+/* …and only the button to press pulses (once it can be pressed), like "Lock in" in a classic game. */
+.game[data-coach~="check"] [data-action="check"]:not(:disabled),
+.game[data-coach~="demonstrate"] [data-action="demonstrate"]:not(:disabled) {
+  animation: cta-pulse 1.8s ease-out infinite;
 }
 
 /* ------------------------------------------------------------- Action bar */

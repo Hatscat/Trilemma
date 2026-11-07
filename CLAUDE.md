@@ -32,7 +32,8 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
 - `src/main.ts`: hash router (`#/`, `#/play`, `#/tutorial`, `#/rules`). The state is saved to localStorage after every
   change, and every storage access is guarded. The tutorial is never saved.
 - `src/ui/tutorial.ts`: scripted lessons on top of `GameView` (fixed tables from `src/core/lessons.ts`, coach banner,
-  `[data-coach]` highlights). Steps complete on state changes or view events (`zoom`, `revealed`).
+  `[data-coach]` highlights). Steps complete on state changes or view events (`revealed`). One highlight at a time: a
+  steady outline for what the coach talks about, a pulse only for the button to press. Keep the coach texts short.
 - `src/sw.ts`: service worker. It must not import anything. The precache list and the cache version are injected by the
   Vite plugin in `vite.config.ts` (`public/screenshots/` is excluded: those images are only for the install dialog).
 - `src/ui/install.ts`: installation offer (`beforeinstallprompt` on Chromium, instructions on iPhone/iPad, hidden when
