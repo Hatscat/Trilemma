@@ -2,7 +2,7 @@
 
 ## Done
 
-- **v0.1** — Solo PWA: Classic and Challenge modes, offline play, saved game, personal records.
+- **v0.1** — Solo PWA: Classic and Challenge (now Practice) modes, offline play, saved game, personal records.
 - **v0.2** — English, French and Spanish; interactive tutorial (3 lessons); deployment to GitHub Pages.
 - **Printable edition, home print** — A4 PDFs in three languages ([print/](../print/)): cards with crop marks and backs,
   board, characters (tokens and standees), order tokens, bid tiles, tabletop rules.
@@ -27,7 +27,8 @@ Help stuck players (kids especially) without giving the answer away, like the li
 The same puzzle for everyone each day, easy to share in the family.
 
 - The seed comes from the date. A generator retries seeds until the table meets quality criteria (e.g. target ≥ 6, a
-  unique optimal group) and plays it as a Challenge round, or a short series of rounds.
+  unique optimal group) and plays it as a Practice-style round, or a short series of rounds. Name: "Daily challenge"
+  ("Défi du jour", "Desafío del día").
 - Result shared as text with the Web Share API, e.g. `Trilemma #42 · 7/7 · 0 mistakes · 1:42`.
 - Streaks stored locally. No server needed.
 - Open question: should difficulty vary across the week?

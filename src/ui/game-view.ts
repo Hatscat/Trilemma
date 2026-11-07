@@ -342,7 +342,7 @@ export class GameView {
     this.#subtitle.textContent = this.#options.subtitle?.(s) ??
       (s.phase.name === "over" ? m.gameOver : m.round(s.round));
     const parts = [m.pile(s.pile.length), m.won(s.won.length)];
-    if (s.config.mode === "challenge") {
+    if (s.config.mode === "practice") {
       const ongoing = s.phase.name === "search" ? s.roundMistakes : 0;
       parts.push(m.mistakes(s.history.reduce((n, r) => n + r.mistakes, 0) + ongoing));
     }
@@ -352,14 +352,14 @@ export class GameView {
     );
   }
 
-  /** The number of cards to show: the target in challenge mode, the bid once locked in classic mode. */
+  /** The number of cards to show: the target in practice mode, the bid once locked in classic mode. */
   #renderTarget(): void {
     const m = t().game;
     const s = this.#state;
     const { phase } = s;
     let number: number | null = null;
     let label = "";
-    if (s.config.mode === "challenge" && phase.name !== "over") {
+    if (s.config.mode === "practice" && phase.name !== "over") {
       number = s.target;
       label = m.cardsToFind(s.target);
     } else if (phase.name === "demonstrate" || (phase.name === "result" && phase.result.bid !== null)) {
@@ -549,7 +549,7 @@ export class GameView {
         const missing = missingFor(s.target, count, placed);
         const falseCard = phase.feedback ? getCard(phase.feedback.falseCard) : null;
         return {
-          status: flash ?? (falseCard ? m.falseCardRetry(falseCard.number) : m.searchChallenge(s.target)),
+          status: flash ?? (falseCard ? m.falseCardRetry(falseCard.number) : m.searchPractice(s.target)),
           detail: [m.selectedOf(count, s.target), missing].filter(Boolean).join(" · "),
           tone: flash || falseCard ? "bad" : "info",
           buttons: [
@@ -636,7 +636,7 @@ export class GameView {
       this.#clock.textContent = formatClock(left);
       this.#clock.classList.toggle("is-urgent", left <= 10_000);
       if (left <= 0) this.#apply((state) => expireTimer(state, Date.now()));
-    } else if (s.config.mode === "challenge" && s.phase.name === "search") {
+    } else if (s.config.mode === "practice" && s.phase.name === "search") {
       this.#clock.hidden = false;
       this.#clock.classList.remove("is-urgent");
       this.#clock.textContent = formatClock(Math.floor((now - s.roundStartedAt) / 1000) * 1000);
@@ -908,7 +908,7 @@ export class GameView {
       mode === "classic"
         ? [o.voidDemonstrations, String(summary.failedRounds)]
         : [o.mistakes, String(summary.mistakes)],
-      ...(mode === "challenge" ? [[o.solutionsRevealed, String(summary.revealedRounds)] as [string, string]] : []),
+      ...(mode === "practice" ? [[o.solutionsRevealed, String(summary.revealedRounds)] as [string, string]] : []),
       [o.time, formatDuration(summary.durationMs)],
     ];
     const badges = [

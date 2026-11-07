@@ -25,7 +25,7 @@ import { analyzeTable, isCardTrue, trueCards } from "./solver.ts";
 
 const T0 = 1_000_000;
 const classic: GameConfig = { mode: "classic", deck: "base", timerSeconds: null, seed: 42 };
-const challenge: GameConfig = { ...classic, mode: "challenge" };
+const practice: GameConfig = { ...classic, mode: "practice" };
 
 /** Places the characters for `arrangement` and selects `cards`. */
 function prepare(state: GameState, arrangement: number, cards: readonly string[]): GameState {
@@ -103,7 +103,7 @@ Deno.test("classic: the search happens in the head, the board unlocks with the b
   assertEquals(canEditBoard(s), true);
   s = prepare(s, arrangement, cards);
   assertEquals(s.selection.length, cards.length);
-  assertEquals(canEditBoard(newGame(challenge, T0)), true, "challenge mode can use the board while searching");
+  assertEquals(canEditBoard(newGame(practice, T0)), true, "practice mode can use the board while searching");
 });
 
 Deno.test("classic: the bid is strict", () => {
@@ -129,8 +129,8 @@ Deno.test("classic: an expired timer forces the bid", () => {
   assertEquals(s.phase, { name: "demonstrate", bid: 3 });
 });
 
-Deno.test("challenge: wrong checks count as mistakes, a right one wins the round", () => {
-  let s = newGame(challenge, T0);
+Deno.test("practice: wrong checks count as mistakes, a right one wins the round", () => {
+  let s = newGame(practice, T0);
   const { arrangement, cards } = optimalPlay(s);
   assertEquals(s.target, cards.length);
   const falseCard = tableCards(s).find((id) => !isCardTrue(id, arrangement))!;
@@ -148,8 +148,8 @@ Deno.test("challenge: wrong checks count as mistakes, a right one wins the round
   assertEquals(s.phase.result.mistakes, 1);
 });
 
-Deno.test("challenge: giving up discards a solution", () => {
-  let s = newGame(challenge, T0);
+Deno.test("practice: giving up discards a solution", () => {
+  let s = newGame(practice, T0);
   s = giveUp(s, T0);
   assert(s.phase.name === "result");
   const { result } = s.phase;
@@ -161,7 +161,7 @@ Deno.test("challenge: giving up discards a solution", () => {
 });
 
 Deno.test("a full game with optimal play empties the deck", () => {
-  for (const mode of ["classic", "challenge"] as const) {
+  for (const mode of ["classic", "practice"] as const) {
     let s = newGame({ ...classic, mode, seed: 7 }, T0);
     let guard = 0;
     while (s.phase.name !== "over" && guard++ < 100) {

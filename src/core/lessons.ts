@@ -14,10 +14,10 @@ export interface Lesson {
 }
 
 export const LESSONS: readonly Lesson[] = [
-  { id: "board", mode: "challenge", cards: ["ROW-STAR-1", "COL-CIRCLE-B", "ABOVE-SQUARE-CIRCLE"], max: 3 },
+  { id: "board", mode: "practice", cards: ["ROW-STAR-1", "COL-CIRCLE-B", "ABOVE-SQUARE-CIRCLE"], max: 3 },
   {
     id: "contradictions",
-    mode: "challenge",
+    mode: "practice",
     cards: ["ROW-STAR-1", "ROW-STAR-3", "LEFT-CIRCLE-SQUARE", "SHADE-STAR-DARK"],
     max: 3,
   },

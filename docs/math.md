@@ -168,7 +168,7 @@ time, not on how many solutions exist. Only playtests can measure it. Ties betwe
 order: the player who locked in first demonstrates first. Two consequences for the PWA:
 
 - **Validation** must accept _any_ compatible group of the bid size, never a single expected answer.
-- **Challenge mode** should accept any group reaching the max, and can show "other solutions exist" afterwards.
+- **Practice mode** should accept any group reaching the max, and can show "other solutions exist" afterwards.
 
 ## 5. Game length
 

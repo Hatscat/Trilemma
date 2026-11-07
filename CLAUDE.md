@@ -11,7 +11,7 @@ largest group of mutually compatible rule cards for 3 characters on a 3 × 3 boa
 - Probabilities, deck balance, choice of n: [docs/math.md](docs/math.md)
 - Planned features (hints, daily puzzle, multiplayer, printable edition): [docs/roadmap.md](docs/roadmap.md)
 
-**Status:** v0.2.0: solo PWA (Classic, Challenge, tutorial) in English, French and Spanish, offline and installable,
+**Status:** v0.2.0: solo PWA (Classic, Practice, tutorial) in English, French and Spanish, offline and installable,
 deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trilemma.lonebee.games`).
 
 ## Hard constraints
@@ -61,6 +61,9 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
   - Every arrangement satisfies exactly 24 of the 55 base cards (36 of the 91 cards with the expert deck).
   - A draw often has several optimal arrangements and groups. Validation must accept any compatible group, never one
     expected answer.
+- Modes: `classic` (bid, then all-or-nothing demonstration) and `practice` (the target is announced, the board is free
+  to use while searching). `practice` was called `challenge` until v0.2: `storage.ts` migrates old saves and records.
+  "Challenge" is kept for the planned daily puzzle.
 - Round rules (full rules in README):
   - Bids are strict: a demonstration shows exactly the bid number of cards. One false card, or too few cards, makes the
     whole demonstration invalid. The next player then demonstrates with their own unchanged bid.
@@ -68,7 +71,7 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
     priority tokens.
   - If every demonstration fails, nobody scores and the same face-up cards go back to a new search.
   - Classic mode: the search is mental, as in the tabletop game. Moving characters and selecting cards is only possible
-    in the `demonstrate` phase (`canEditBoard` in `game.ts`). Challenge mode allows them while searching.
+    in the `demonstrate` phase (`canEditBoard` in `game.ts`). Practice mode allows them while searching.
 
 ## Card catalog rules
 

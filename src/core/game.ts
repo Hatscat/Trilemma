@@ -3,7 +3,7 @@
  *
  * Classic mode:   search → (lock in a bid) → demonstrate → result → next round …
  *                 With a timer, an expired search goes to "bidding": the player must bid at once.
- * Challenge mode: search (the target is announced) → check → result → next round …
+ * Practice mode: search (the target is announced) → check → result → next round …
  *
  * Every transition is a pure function `(state, …) => state`. Illegal transitions throw a `GameError`.
  * Times are passed in explicitly (`now`, in milliseconds) to keep the logic deterministic and testable.
@@ -17,7 +17,7 @@ import { analyzeTable, isCardTrue, trueCards } from "./solver.ts";
 export const TABLE_SIZE = 9;
 export const STATE_VERSION = 1;
 
-export type Mode = "classic" | "challenge";
+export type Mode = "classic" | "practice";
 
 export interface GameConfig {
   readonly mode: Mode;
@@ -37,7 +37,7 @@ export type RoundOutcome = "won" | "failed" | "revealed";
 export interface RoundResult {
   readonly round: number;
   readonly outcome: RoundOutcome;
-  /** Classic mode bid, `null` in challenge mode. */
+  /** Classic mode bid, `null` in practice mode. */
   readonly bid: number | null;
   /** Largest compatible group on the table this round. */
   readonly max: number;
@@ -50,13 +50,13 @@ export interface RoundResult {
   /** An optimal arrangement (the player's one when it is optimal) and its true cards. */
   readonly solution: number;
   readonly solutionCards: readonly string[];
-  /** Challenge mode: wrong checks during the round. */
+  /** Practice mode: wrong checks during the round. */
   readonly mistakes: number;
   readonly durationMs: number;
 }
 
 export interface Feedback {
-  /** Challenge mode: first selected card that is false for the checked arrangement. */
+  /** Practice mode: first selected card that is false for the checked arrangement. */
   readonly falseCard: string;
 }
 
@@ -76,7 +76,7 @@ export interface GameState {
   readonly won: readonly string[];
   readonly discarded: readonly string[];
   readonly round: number;
-  /** Largest compatible group on the current table (announced in challenge mode). */
+  /** Largest compatible group on the current table (announced in practice mode). */
   readonly target: number;
   readonly placement: Placement;
   /** Selected card ids, in table order. */
@@ -154,11 +154,11 @@ function dealGame(config: GameConfig, order: readonly string[], now: number): Ga
 /**
  * Whether characters can be moved and cards selected.
  * Classic mode, like the tabletop game: the search happens in the player's head, so the board and the cards are
- * locked until the bid is locked in. Challenge mode: they can be used while searching.
+ * locked until the bid is locked in. Practice mode: they can be used while searching.
  */
 export function canEditBoard(state: GameState): boolean {
   const { phase } = state;
-  return phase.name === "demonstrate" || (phase.name === "search" && state.config.mode === "challenge");
+  return phase.name === "demonstrate" || (phase.name === "search" && state.config.mode === "practice");
 }
 
 function clearFeedback(phase: Phase): Phase {
@@ -270,12 +270,12 @@ export function demonstrate(state: GameState, now: number): GameState {
 }
 
 // ---------------------------------------------------------------------------
-// Challenge mode
+// Practice mode
 // ---------------------------------------------------------------------------
 
-/** Challenge mode: checks a group of exactly `target` cards. A wrong check counts as a mistake. */
+/** Practice mode: checks a group of exactly `target` cards. A wrong check counts as a mistake. */
 export function check(state: GameState, now: number): GameState {
-  if (state.config.mode !== "challenge") fail("Checks only exist in challenge mode");
+  if (state.config.mode !== "practice") fail("Checks only exist in practice mode");
   if (state.phase.name !== "search") fail(`Cannot check during "${state.phase.name}"`);
   if (state.selection.length !== state.target) fail(`Select exactly ${state.target} cards`);
   const arrangement = playerArrangement(state);
@@ -299,9 +299,9 @@ export function check(state: GameState, now: number): GameState {
   }, now);
 }
 
-/** Challenge mode: reveals a solution. Its cards are discarded, not won. */
+/** Practice mode: reveals a solution. Its cards are discarded, not won. */
 export function giveUp(state: GameState, now: number): GameState {
-  if (state.config.mode !== "challenge") fail("Giving up only exists in challenge mode");
+  if (state.config.mode !== "practice") fail("Giving up only exists in practice mode");
   if (state.phase.name !== "search") fail(`Cannot give up during "${state.phase.name}"`);
   const { solution, solutionCards } = solutionFor(state, null);
   return finishRound(state, {
@@ -369,7 +369,7 @@ export interface GameSummary {
   readonly rounds: number;
   readonly cardsWon: number;
   readonly cardsRevealed: number;
-  /** Classic: winning bid equal to the max. Challenge: found without mistakes. */
+  /** Classic: winning bid equal to the max. Practice: found without mistakes. */
   readonly perfectRounds: number;
   readonly failedRounds: number;
   readonly revealedRounds: number;

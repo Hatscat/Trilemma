@@ -108,7 +108,7 @@ Deno.test({
         assertEquals(await page.textContent("h1"), "Trilemma");
         assertEquals(await page.getAttribute('link[rel="manifest"]', "href"), "./manifest.webmanifest");
         assert(await page.isVisible('[data-mode="classic"]'));
-        assert(await page.isVisible('[data-mode="challenge"]'));
+        assert(await page.isVisible('[data-mode="practice"]'));
         await screenshot(page, "01-home");
         await session.close();
       });
@@ -197,13 +197,13 @@ Deno.test({
         await session.close();
       });
 
-      await t.step("challenge: a wrong check is a mistake, the right group wins", async () => {
-        const game = expectedGame("challenge");
+      await t.step("practice: a wrong check is a mistake, the right group wins", async () => {
+        const game = expectedGame("practice");
         const { arrangement, cards, falseCard } = solve(game);
         const session = await newPage(browser);
         const { page } = session;
         await page.goto(home);
-        await page.click('[data-mode="challenge"]');
+        await page.click('[data-mode="practice"]');
         assertStringIncludes(await status(page), `Find ${game.target} cards`);
         assertEquals(await page.textContent(".target-number"), String(game.target), "the target is shown at the top");
         assertEquals(await page.textContent(".target-text"), "cards to find");
@@ -213,7 +213,7 @@ Deno.test({
         assertStringIncludes(await status(page), `Card ${getCard(falseCard).number} is false`);
         assertStringIncludes((await page.textContent(".stats")) ?? "", "Mistakes 1");
         assertEquals(await page.locator(".pip.is-on").count(), cards.length);
-        await screenshot(page, "05-challenge-mistake");
+        await screenshot(page, "05-practice-mistake");
         await selectCards(page, [falseCard, cards[0]]);
         await page.click('[data-action="check"]');
         await page.waitForSelector('[data-action="next-round"]');
@@ -222,11 +222,11 @@ Deno.test({
         await session.close();
       });
 
-      await t.step("a full challenge game ends with a summary and a record", async () => {
+      await t.step("a full practice game ends with a summary and a record", async () => {
         const session = await newPage(browser);
         const { page } = session;
         await page.goto(home);
-        await page.click('[data-mode="challenge"]');
+        await page.click('[data-mode="practice"]');
         let rounds = 0;
         for (let guard = 0; guard < 40; guard++) {
           await page.waitForSelector(".card[data-card-id]");
@@ -364,7 +364,7 @@ Deno.test({
         const session = await newPage(browser, { width: 1280, height: 800 });
         const { page } = session;
         await page.goto(home);
-        await page.click('[data-mode="challenge"]');
+        await page.click('[data-mode="practice"]');
         const from = (await page.locator('[data-tray-slot="1"]').boundingBox())!;
         const to = (await page.locator('[data-cell="4"]').boundingBox())!;
         await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
@@ -379,7 +379,7 @@ Deno.test({
       });
 
       await t.step("card zoom shows a readable caption", async () => {
-        const id = expectedGame("challenge").table[0]!;
+        const id = expectedGame("practice").table[0]!;
         const session = await newPage(browser);
         const { page } = session;
         await page.goto(home);
@@ -392,8 +392,8 @@ Deno.test({
         await page.click(".zoom-dialog .btn-ghost"); // Close
         await page.click('[data-action="exit"]');
 
-        // Challenge: the zoom can select the card.
-        await page.click('[data-mode="challenge"]');
+        // Practice: the zoom can select the card.
+        await page.click('[data-mode="practice"]');
         await page.click(".dialog-actions .btn-primary"); // Confirm the new game
         await page.click(`[data-zoom="${id}"]`);
         await screenshot(page, "07-zoom");
@@ -406,13 +406,13 @@ Deno.test({
         const session = await newPage(browser);
         const { page } = session;
         await page.goto(home);
-        await page.click('[data-mode="challenge"]');
+        await page.click('[data-mode="practice"]');
         await page.click('[data-cell="0"]');
         await page.reload();
         await page.waitForSelector(".board-cells");
         assertEquals(await page.getAttribute('[data-cell="0"]', "data-occupant"), "0");
         await page.click('[data-action="exit"]');
-        assertStringIncludes((await page.textContent(".resume")) ?? "", "Challenge · round 1");
+        assertStringIncludes((await page.textContent(".resume")) ?? "", "Practice · round 1");
         await session.close();
       });
 

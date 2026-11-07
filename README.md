@@ -7,7 +7,7 @@ Three little characters must be placed on a 3 × 3 board. A set of **rule cards*
 each other. Every player races to find **the largest group of rules that can all be true at the same time**, bids that
 number, and must then prove it on the board.
 
-> **Status: v0.2.0.** Solo PWA with the Classic and Challenge modes and an interactive tutorial, in English, French and
+> **Status: v0.2.0.** Solo PWA with the Classic and Practice modes and an interactive tutorial, in English, French and
 > Spanish, installable and playable offline. Published on GitHub Pages (see [Deployment](#deployment)). Next steps:
 > [docs/roadmap.md](docs/roadmap.md).
 
@@ -118,17 +118,19 @@ Mobile first, installable and playable offline.
   happens in the player's head: the board and the cards stay locked (cards can still be zoomed). The player locks in
   their bid, which unlocks the board, then builds the demonstration: they place the characters and select exactly as
   many cards as they bid. The game validates the cards, then reveals the true maximum and an optimal arrangement.
-- **Challenge** (working name). The game announces the maximum for each round, and the player must find a compatible
-  group of that size. Any valid group is accepted, since there are often several.
+- **Practice.** The game announces the maximum for each round, and the player can use the board while searching. They
+  must find a compatible group of that size; any valid group is accepted, since there are often several. Wrong checks
+  count as mistakes, and a solution can be revealed (its cards are then discarded). This mode was called "Challenge"
+  until v0.2; the name is kept for the planned daily puzzle.
 - **Tutorial.** Three short lessons played on the real game screen: the board, contradictions, and Classic mode (bid,
   then all-or-nothing demonstration). A coach banner explains each step and highlights what to tap. It is offered first
   on the home screen until it has been completed once.
 
 In both modes:
 
-- **Target**: the number of cards to find (Challenge) or the bid (Classic demonstration) is shown in large at the top,
+- **Target**: the number of cards to find (Practice) or the bid (Classic demonstration) is shown in large at the top,
   with one dot per selected card.
-- **Placing characters** (Challenge search, Classic demonstration): tap a character then a cell, or drag it. Tapping an
+- **Placing characters** (Practice search, Classic demonstration): tap a character then a cell, or drag it. Tapping an
   empty cell places the next character waiting. A character placed in the row or column of another one sends it back to
   the tray.
 - **Cards**: tap a card to select it. Tap its magnifier (or press and hold the card) to zoom in on it and read its

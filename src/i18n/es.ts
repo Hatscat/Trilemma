@@ -8,7 +8,7 @@ const Name = (c: number) => capitalize(NAMES[c]);
 const of = (c: number) => OF[c];
 const NUMBERS = ["ningún", "un", "dos", "tres"];
 const s = (n: number) => (n === 1 ? "" : "s");
-const modeName = (mode: "classic" | "challenge") => (mode === "classic" ? "Clásico" : "Desafío");
+const modeName = (mode: "classic" | "practice") => (mode === "classic" ? "Clásico" : "Práctica");
 
 const FAMILIES: Record<string, string> = {
   ROW: "Personaje en una fila",
@@ -53,7 +53,8 @@ export const es: Messages = {
     resume: "Continuar",
     resumeDetail: (mode, round, won) => `${modeName(mode)} · ronda ${round} · ${won} carta${s(won)} ganada${s(won)}`,
     classicText: "Anuncia el tamaño del grupo compatible más grande y luego demuéstralo. ¡Todo o nada!",
-    challengeText: "En cada ronda se anuncia el objetivo: encuentra un grupo de cartas que lo alcance.",
+    practiceText:
+      "Practica a tu ritmo: se indica el número de cartas por encontrar y puedes usar el tablero mientras buscas.",
     tutorialTitle: "Tutorial",
     tutorialText: "Aprende a jugar en tres lecciones cortas.",
     deck: "Mazo",
@@ -74,7 +75,7 @@ export const es: Messages = {
   },
 
   game: {
-    modeName: (mode) => ({ classic: "Clásico", challenge: "Desafío", tutorial: "Tutorial" })[mode],
+    modeName: (mode) => ({ classic: "Clásico", practice: "Práctica", tutorial: "Tutorial" })[mode],
     round: (n) => `Ronda ${n}`,
     gameOver: "Fin de la partida",
     pile: (n) => `Mazo ${n}`,
@@ -100,7 +101,7 @@ export const es: Messages = {
     myArrangement: "Mi colocación",
     searchClassic: "Encuentra el grupo más grande de cartas que pueden ser verdaderas a la vez.",
     searchClassicHint: "Imagina los personajes en tu cabeza: los colocarás después de tu anuncio.",
-    searchChallenge: (target) => `Encuentra ${target} cartas que pueden ser verdaderas a la vez.`,
+    searchPractice: (target) => `Encuentra ${target} cartas que pueden ser verdaderas a la vez.`,
     falseCardRetry: (number) => `La carta ${number} es falsa con esta colocación. ¡Inténtalo de nuevo!`,
     selectedOf: (selected, target) => `${selected}/${target} seleccionada${s(selected)}`,
     cardsToFind: (n) => `carta${s(n)} por encontrar`,
@@ -187,9 +188,9 @@ export const es: Messages = {
           "Las cartas ganadas se reponen desde el mazo. ¡Vacía el mazo en el menor número de rondas posible!",
         ],
       },
-      { h2: "Modo Desafío" },
+      { h2: "Modo Práctica" },
       {
-        p: "Se anuncia el tamaño del grupo más grande. Encuentra un grupo de ese tamaño, coloca los personajes y comprueba. Cada comprobación equivocada cuenta como un error. Se acepta cualquier grupo válido.",
+        p: "Se anuncia el tamaño del grupo más grande y puedes usar el tablero mientras buscas. Encuentra un grupo de ese tamaño, coloca los personajes y comprueba. Cada comprobación equivocada cuenta como un error. Se acepta cualquier grupo válido.",
       },
       { h2: "Leer las cartas" },
       {
@@ -221,7 +222,7 @@ export const es: Messages = {
       contradiction: "Algunas reglas se contradicen: la Estrella no puede estar en la fila 1 y en la fila 3 a la vez.",
       largest:
         "Encuentra el grupo más grande de cartas compatibles. Aquí tiene 3 cartas: coloca los personajes, selecciona 3 cartas y pulsa Comprobar.",
-      contradictionsDone: "¡Exacto! En el modo Desafío, el juego siempre te dice el tamaño del grupo más grande.",
+      contradictionsDone: "¡Exacto! En el modo Práctica, el juego siempre te dice el tamaño del grupo más grande.",
       classicIntro:
         "En el modo Clásico, nadie te dice el tamaño del grupo más grande, y el tablero está bloqueado mientras buscas: ¡todo pasa en tu cabeza!",
       lockIn:

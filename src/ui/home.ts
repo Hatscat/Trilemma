@@ -65,7 +65,7 @@ export function renderHome(
   const records = h("section", { class: "records", "aria-label": m.home.records(current.deck === "full") });
   const renderRecords = () => {
     const all = loadRecords();
-    const lines = (["classic", "challenge"] as const).flatMap((mode) => {
+    const lines = (["classic", "practice"] as const).flatMap((mode) => {
       const r = all[recordKey(mode, current.deck)];
       if (!r || r.played === 0) return [];
       const best = [
@@ -123,7 +123,7 @@ export function renderHome(
       { class: "modes", "aria-label": m.home.newGameConfirm },
       current.tutorialDone ? null : tutorialCard,
       modeCard("classic", m.home.classicText),
-      modeCard("challenge", m.home.challengeText),
+      modeCard("practice", m.home.practiceText),
     ),
     h(
       "section",

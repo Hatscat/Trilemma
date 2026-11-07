@@ -50,7 +50,7 @@ export interface Messages {
     readonly resume: string;
     readonly resumeDetail: (mode: Mode, round: number, won: number) => string;
     readonly classicText: string;
-    readonly challengeText: string;
+    readonly practiceText: string;
     readonly tutorialTitle: string;
     readonly tutorialText: string;
     readonly deck: string;
@@ -98,10 +98,10 @@ export interface Messages {
     readonly searchClassic: string;
     /** Classic search: the board is locked, the player imagines the arrangement. */
     readonly searchClassicHint: string;
-    readonly searchChallenge: (target: number) => string;
+    readonly searchPractice: (target: number) => string;
     readonly falseCardRetry: (number: number) => string;
     readonly selectedOf: (selected: number, target: number) => string;
-    /** Label next to the big target number (challenge mode). */
+    /** Label next to the big target number (practice mode). */
     readonly cardsToFind: (n: number) => string;
     /** Label next to the big bid number (classic mode, demonstration). */
     readonly yourBid: string;

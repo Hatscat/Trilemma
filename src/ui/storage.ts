@@ -65,15 +65,40 @@ export function saveSettings(settings: Settings): void {
   write(KEYS.settings, settings);
 }
 
+// --- Migrations ---------------------------------------------------------------
+
+/** Mode identifiers renamed since earlier versions (v0.2 called the practice mode "challenge"). */
+const RENAMED_MODES: Readonly<Record<string, Mode>> = { challenge: "practice" };
+
+/** Brings a saved game written by an earlier version up to date. */
+export function migrateSavedGame(saved: SavedGame): SavedGame {
+  const mode: string = saved.state?.config?.mode;
+  const renamed = RENAMED_MODES[mode];
+  if (!renamed) return saved;
+  return { ...saved, state: { ...saved.state, config: { ...saved.state.config, mode: renamed } } };
+}
+
+/** Brings records written by an earlier version up to date (keys are `<mode>-<deck>`). */
+export function migrateRecords(records: Records): Records {
+  return Object.fromEntries(
+    Object.entries(records).map(([key, record]) => {
+      const [mode, ...rest] = key.split("-");
+      const renamed = RENAMED_MODES[mode];
+      return [renamed ? [renamed, ...rest].join("-") : key, record];
+    }),
+  );
+}
+
 // --- Game in progress -------------------------------------------------------
 
-interface SavedGame {
+export interface SavedGame {
   readonly savedAt: number;
   readonly state: GameState;
 }
 
 export function loadGame(): SavedGame | null {
-  const saved = read<SavedGame>(KEYS.save);
+  const raw = read<SavedGame>(KEYS.save);
+  const saved = raw ? migrateSavedGame(raw) : null;
   return saved && typeof saved.savedAt === "number" && isGameState(saved.state) ? saved : null;
 }
 
@@ -96,14 +121,14 @@ export interface GameRecord {
   readonly bestTimeMs: number | null;
 }
 
-type Records = Record<string, GameRecord>;
+export type Records = Record<string, GameRecord>;
 
 export function recordKey(mode: Mode, deck: DeckChoice): string {
   return `${mode}-${deck}`;
 }
 
 export function loadRecords(): Records {
-  return read<Records>(KEYS.records) ?? {};
+  return migrateRecords(read<Records>(KEYS.records) ?? {});
 }
 
 /** Stores a finished game and tells which records it beat. */
@@ -115,7 +140,7 @@ export function addFinishedGame(
   const records = loadRecords();
   const key = recordKey(mode, deck);
   const old = records[key] ?? { played: 0, bestRounds: null, bestTimeMs: null };
-  // In challenge mode, revealed solutions do not count as a clean finish for records.
+  // In practice mode, revealed solutions do not count as a clean finish for records.
   const eligible = mode === "classic" || summary.revealedRounds === 0;
   const newBestRounds = eligible && (old.bestRounds === null || summary.rounds < old.bestRounds);
   const newBestTime = eligible && (old.bestTimeMs === null || summary.durationMs < old.bestTimeMs);

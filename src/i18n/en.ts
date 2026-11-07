@@ -46,9 +46,10 @@ export const en: Messages = {
     tagline: "Three characters. Nine cells. Too many rules.",
     resume: "Resume",
     resumeDetail: (mode, round, won) =>
-      `${mode === "classic" ? "Classic" : "Challenge"} · round ${round} · ${won} ${plural(won, "card", "cards")} won`,
+      `${mode === "classic" ? "Classic" : "Practice"} · round ${round} · ${won} ${plural(won, "card", "cards")} won`,
     classicText: "Bid the size of the largest compatible group, then prove it. All or nothing!",
-    challengeText: "The target is announced each round: find a group of cards that reaches it.",
+    practiceText:
+      "Practice at your own pace: the number of cards to find is given, and you can use the board while you search.",
     tutorialTitle: "Tutorial",
     tutorialText: "Learn to play in three short lessons.",
     deck: "Deck",
@@ -69,7 +70,7 @@ export const en: Messages = {
   },
 
   game: {
-    modeName: (mode) => ({ classic: "Classic", challenge: "Challenge", tutorial: "Tutorial" })[mode],
+    modeName: (mode) => ({ classic: "Classic", practice: "Practice", tutorial: "Tutorial" })[mode],
     round: (n) => `Round ${n}`,
     gameOver: "Game over",
     pile: (n) => `Pile ${n}`,
@@ -95,7 +96,7 @@ export const en: Messages = {
     myArrangement: "My arrangement",
     searchClassic: "Find the largest group of cards that can all be true at once.",
     searchClassicHint: "Picture the characters in your head: you will place them after your bid.",
-    searchChallenge: (target) => `Find ${target} cards that can all be true at once.`,
+    searchPractice: (target) => `Find ${target} cards that can all be true at once.`,
     falseCardRetry: (number) => `Card ${number} is false for this arrangement. Try again!`,
     selectedOf: (selected, target) => `${selected}/${target} selected`,
     cardsToFind: (n) => `${plural(n, "card", "cards")} to find`,
@@ -142,8 +143,7 @@ export const en: Messages = {
 
   over: {
     title: "Deck cleared!",
-    subtitle: (mode, fullDeck) =>
-      `${mode === "classic" ? "Classic" : "Challenge"} · ${fullDeck ? "Full" : "Base"} deck`,
+    subtitle: (mode, fullDeck) => `${mode === "classic" ? "Classic" : "Practice"} · ${fullDeck ? "Full" : "Base"} deck`,
     newBestRounds: "New record: fewest rounds!",
     newBestTime: "New record: fastest game!",
     rounds: "Rounds",
@@ -182,9 +182,9 @@ export const en: Messages = {
           "Won cards are replaced from the pile. Empty the deck in as few rounds as possible!",
         ],
       },
-      { h2: "Challenge mode" },
+      { h2: "Practice mode" },
       {
-        p: "The size of the largest group is announced. Find a group of that size, place the characters and check. Wrong checks count as mistakes. Any valid group is accepted.",
+        p: "The size of the largest group is announced, and you can use the board while you search. Find a group of that size, place the characters and check. Wrong checks count as mistakes. Any valid group is accepted.",
       },
       { h2: "Reading the cards" },
       {
@@ -214,7 +214,7 @@ export const en: Messages = {
       contradiction: "Some rules contradict each other: the Star cannot be in row 1 and in row 3 at the same time.",
       largest:
         "Find the largest group of compatible cards. Here, it has 3 cards: place the characters, select 3 cards and press Check.",
-      contradictionsDone: "Exactly! In Challenge mode, the game always tells you the size of the largest group.",
+      contradictionsDone: "Exactly! In Practice mode, the game always tells you the size of the largest group.",
       classicIntro:
         "In Classic mode, nobody tells you the size of the largest group, and the board stays locked while you search: everything happens in your head!",
       lockIn:

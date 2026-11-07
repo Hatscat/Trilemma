@@ -9,7 +9,7 @@ const Name = (c: number) => capitalize(NAMES[c]);
 const of = (c: number) => OF[c];
 const NUMBERS = ["aucun", "un", "deux", "trois"];
 const s = (n: number) => (n > 1 ? "s" : "");
-const modeName = (mode: "classic" | "challenge") => (mode === "classic" ? "Classique" : "Défi");
+const modeName = (mode: "classic" | "practice") => (mode === "classic" ? "Classique" : "Entraînement");
 
 const FAMILIES: Record<string, string> = {
   ROW: "Personnage sur une ligne",
@@ -53,7 +53,8 @@ const messages: Messages = {
     resume: "Reprendre",
     resumeDetail: (mode, round, won) => `${modeName(mode)} · manche ${round} · ${won} carte${s(won)} gagnée${s(won)}`,
     classicText: "Annonce la taille du plus grand groupe compatible, puis prouve-le. Tout ou rien !",
-    challengeText: "À chaque manche, l’objectif est annoncé : trouve un groupe de cartes qui l’atteint.",
+    practiceText:
+      "Entraîne-toi à ton rythme : le nombre de cartes à trouver est donné, et tu peux utiliser le plateau pendant ta recherche.",
     tutorialTitle: "Tutoriel",
     tutorialText: "Apprends à jouer en trois petites leçons.",
     deck: "Paquet",
@@ -74,7 +75,7 @@ const messages: Messages = {
   },
 
   game: {
-    modeName: (mode) => ({ classic: "Classique", challenge: "Défi", tutorial: "Tutoriel" })[mode],
+    modeName: (mode) => ({ classic: "Classique", practice: "Entraînement", tutorial: "Tutoriel" })[mode],
     round: (n) => `Manche ${n}`,
     gameOver: "Partie terminée",
     pile: (n) => `Pioche ${n}`,
@@ -100,7 +101,7 @@ const messages: Messages = {
     myArrangement: "Ma disposition",
     searchClassic: "Trouve le plus grand groupe de cartes qui peuvent être vraies en même temps.",
     searchClassicHint: "Imagine les personnages dans ta tête : tu les placeras après ton annonce.",
-    searchChallenge: (target) => `Trouve ${target} cartes qui peuvent être vraies en même temps.`,
+    searchPractice: (target) => `Trouve ${target} cartes qui peuvent être vraies en même temps.`,
     falseCardRetry: (number) => `La carte ${number} est fausse pour cette disposition. Réessaie !`,
     selectedOf: (selected, target) => `${selected}/${target} sélectionnée${s(selected)}`,
     cardsToFind: (n) => `carte${s(n)} à trouver`,
@@ -187,9 +188,9 @@ const messages: Messages = {
           "Les cartes gagnées sont remplacées par la pioche. Vide le paquet en un minimum de manches !",
         ],
       },
-      { h2: "Mode Défi" },
+      { h2: "Mode Entraînement" },
       {
-        p: "La taille du plus grand groupe est annoncée. Trouve un groupe de cette taille, place les personnages et vérifie. Chaque vérification fausse compte comme une erreur. Tout groupe valide est accepté.",
+        p: "La taille du plus grand groupe est annoncée, et tu peux utiliser le plateau pendant ta recherche. Trouve un groupe de cette taille, place les personnages et vérifie. Chaque vérification fausse compte comme une erreur. Tout groupe valide est accepté.",
       },
       { h2: "Lire les cartes" },
       {
@@ -222,7 +223,7 @@ const messages: Messages = {
         "Certaines règles se contredisent : l’Étoile ne peut pas être sur la ligne 1 et sur la ligne 3 en même temps.",
       largest:
         "Trouve le plus grand groupe de cartes compatibles. Ici, il a 3 cartes : place les personnages, sélectionne 3 cartes et appuie sur Vérifier.",
-      contradictionsDone: "Exactement ! En mode Défi, le jeu te dit toujours la taille du plus grand groupe.",
+      contradictionsDone: "Exactement ! En mode Entraînement, le jeu te dit toujours la taille du plus grand groupe.",
       classicIntro:
         "En mode Classique, personne ne te dit la taille du plus grand groupe, et le plateau reste bloqué pendant la recherche : tout se passe dans ta tête !",
       lockIn:
