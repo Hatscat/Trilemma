@@ -128,6 +128,8 @@ export const es: Messages = {
     discarded: "Estas cartas se descartan.",
     deckCleared: "¡Mazo terminado!",
     notPossible: "Ese movimiento no es posible ahora.",
+    cellLocked: (c) => `${Name(c)} ya ocupa esta fila o columna: ${c === 0 ? "muévela" : "muévelo"} primero.`,
+    tapCharacterFirst: "Toca un personaje para moverlo.",
   },
 
   dialogs: {
@@ -176,7 +178,7 @@ export const es: Messages = {
         p: "Tres personajes, la Estrella {star}, el Círculo {circle} y el Cuadrado {square}, se colocan en un tablero de 3 × 3: exactamente un personaje por fila y uno por columna. Las filas se numeran del 1 al 3 de arriba abajo y las columnas van de la A a la C de izquierda a derecha. Las esquinas y el centro son casillas oscuras, con rayas; las demás son claras.",
       },
       {
-        p: "Toca un personaje y luego una casilla (o arrástralo). Al tocar una casilla vacía se coloca allí el siguiente personaje en espera. Un personaje colocado en la fila o la columna de otro lo devuelve a la reserva.",
+        p: "Toca un personaje y luego una casilla (o arrástralo). Al tocar una casilla vacía se coloca allí el siguiente personaje en espera. Un personaje colocado reserva su fila y su columna (líneas de color): para usarlas, mueve primero ese personaje, o toca su hueco vacío a la derecha para devolverlo.",
       },
       { h2: "Modo Clásico" },
       {
@@ -228,7 +230,7 @@ export const es: Messages = {
     steps: {
       meet: "¡Te presento a la Estrella, el Círculo y el Cuadrado! Vas a colocarlos en el tablero.",
       board:
-        "El tablero tiene 3 filas (1 a 3) y 3 columnas (A a C). La regla de oro: exactamente un personaje por fila y uno por columna.",
+        "El tablero tiene 3 filas (1 a 3) y 3 columnas (A a C). La regla de oro: exactamente un personaje por fila y uno por columna. Un personaje colocado reserva su fila y su columna.",
       place: "Coloca los tres personajes: toca un personaje y luego una casilla. También puedes arrastrarlos.",
       zoom: "Estas son cartas de reglas. Toca una lupa para ver una carta en grande.",
       starRow1: "Haz que la primera carta sea verdadera: lleva la Estrella a la fila 1.",
@@ -241,7 +243,7 @@ export const es: Messages = {
       classicIntro:
         "En el modo Clásico, nadie te dice el tamaño del grupo más grande, y el tablero está bloqueado mientras buscas: ¡todo pasa en tu cabeza!",
       lockIn:
-        "Imagina dónde podrían ir los personajes y encuentra tu mejor grupo; luego pulsa Anunciar y elige tu número. Pista: 4 cartas van juntas.",
+        "Imagina dónde podrían ir los personajes y encuentra tu mejor grupo; luego pulsa Anunciar y elige tu número. Pista: aquí puedes anunciar cualquier número del 1 al 4. ¡Incluso un anuncio pequeño gana cartas, si lo demuestras!",
       prove:
         "Ahora el tablero está desbloqueado. Demuéstralo: coloca los personajes, selecciona exactamente tantas cartas como tu anuncio y pulsa Demostrar.",
       retry:

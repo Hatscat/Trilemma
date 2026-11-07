@@ -113,17 +113,27 @@ export type Placement = readonly (number | null)[];
 export const EMPTY_PLACEMENT: Placement = [null, null, null];
 
 /**
- * Puts a character on a cell (or back off the board with `null`).
- * Any other character on the same row or column is sent back off the board,
- * so a placement never breaks the "one character per row and per column" rule.
+ * The golden rule: a placed character reserves its row and its column.
+ * Returns the other character that already uses the row or the column of `cell` (so `character` cannot go there),
+ * or `null` when the cell is free for `character`. A character never blocks itself.
+ */
+export function blockerOf(placement: Placement, character: number, cell: number): number | null {
+  for (const [c, other] of placement.entries()) {
+    if (c === character || other === null) continue;
+    if (cellRow(other) === cellRow(cell) || cellCol(other) === cellCol(cell)) return c;
+  }
+  return null;
+}
+
+/**
+ * Puts a character on a cell (or back off the board with `null`). The cell must be free for that character
+ * (see `blockerOf`): other characters are never moved, so a placement always follows the golden rule.
  */
 export function placeCharacter(placement: Placement, character: number, cell: number | null): Placement {
-  return placement.map((current, c) => {
-    if (c === character) return cell;
-    if (cell === null || current === null) return current;
-    const conflict = cellRow(current) === cellRow(cell) || cellCol(current) === cellCol(cell);
-    return conflict ? null : current;
-  });
+  if (cell !== null && blockerOf(placement, character, cell) !== null) {
+    throw new Error(`Cell ${cell} is in the row or column of another character`);
+  }
+  return placement.map((current, c) => (c === character ? cell : current));
 }
 
 /** The arrangement described by a complete placement, or `null` if a character is missing. */

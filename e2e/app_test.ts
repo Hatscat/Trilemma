@@ -374,6 +374,66 @@ Deno.test({
         await session.close();
       });
 
+      await t.step("the golden rule: a placed character locks its row and its column", async () => {
+        const session = await newPage(browser);
+        const { page } = session;
+        await page.goto(home);
+        await page.click('[data-mode="practice"]');
+        await page.click('[data-cell="0"]'); // The Star goes to A1.
+        await page.click('[data-tray-slot="1"]'); // Select the Circle.
+        // A1's row (B1, C1) and column (A2, A3) are locked for the Circle; the 4 other empty cells are free.
+        assertEquals(await page.locator(".cell.is-blocked").count(), 4);
+        assertEquals(await page.locator(".cell.is-free").count(), 4);
+        await screenshot(page, "16-golden-rule");
+        await page.click('[data-cell="2"]'); // C1: refused, nothing moves.
+        assertEquals(await page.getAttribute('[data-cell="2"]', "data-occupant"), "null");
+        assertEquals(await page.getAttribute('[data-cell="0"]', "data-occupant"), "0", "the Star stays");
+        assertStringIncludes(await status(page), "The Star already uses this row or column");
+        await page.click('[data-cell="4"]'); // B2 is free.
+        assertEquals(await page.getAttribute('[data-cell="4"]', "data-occupant"), "1");
+        // The lanes: A2 lies in the Star's column and the Circle's row.
+        const lanes = await page.$eval('[data-cell="3"]', (el) => [
+          (el as HTMLElement).style.getPropertyValue("--row-lane"),
+          (el as HTMLElement).style.getPropertyValue("--col-lane"),
+        ]);
+        assertEquals(lanes, ["var(--lane-1)", "var(--lane-0)"]);
+        await session.close();
+      });
+
+      await t.step("a frantic multi-finger drag leaves no ghost image behind", async () => {
+        const session = await newPage(browser);
+        const { page } = session;
+        await page.goto(home);
+        await page.click('[data-mode="practice"]');
+        await page.waitForSelector('[data-tray-slot="1"] svg');
+        await page.evaluate(() => {
+          const fire = (target: Element, type: string, id: number, x: number, y: number, primary: boolean) =>
+            target.dispatchEvent(
+              new PointerEvent(type, {
+                bubbles: true,
+                pointerId: id,
+                isPrimary: primary,
+                clientX: x,
+                clientY: y,
+                button: 0,
+                pointerType: "touch",
+              }),
+            );
+          const star = document.querySelector('[data-tray-slot="0"] svg')!;
+          const circle = document.querySelector('[data-tray-slot="1"] svg')!;
+          fire(star, "pointerdown", 1, 10, 10, true);
+          fire(star, "pointermove", 1, 60, 60, true);
+          fire(circle, "pointerdown", 2, 20, 20, false); // A second finger, mid-drag.
+          fire(circle, "pointermove", 2, 90, 90, false);
+          fire(circle, "pointerup", 2, 90, 90, false);
+          fire(star, "pointerup", 1, 5, 5, true);
+        });
+        assertEquals(await page.locator(".drag-ghost").count(), 0);
+        await page.click('[data-action="exit"]');
+        assertEquals(await page.locator(".drag-ghost").count(), 0);
+        await session.close();
+      });
+
       await t.step("characters can be dragged onto the board and sent back", async () => {
         const session = await newPage(browser, { width: 1280, height: 800 });
         const { page } = session;

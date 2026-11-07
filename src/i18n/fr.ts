@@ -128,6 +128,9 @@ const messages: Messages = {
     discarded: "Ces cartes sont défaussées.",
     deckCleared: "Paquet terminé !",
     notPossible: "Ce coup n’est pas possible pour l’instant.",
+    cellLocked: (c) =>
+      `${Name(c)} occupe déjà cette ligne ou cette colonne : déplace-${c === 0 ? "la" : "le"} d’abord.`,
+    tapCharacterFirst: "Touche un personnage pour le déplacer.",
   },
 
   dialogs: {
@@ -176,7 +179,7 @@ const messages: Messages = {
         p: "Trois personnages, l’Étoile {star}, le Rond {circle} et le Carré {square}, se placent sur un plateau de 3 × 3 cases : exactement un personnage par ligne et un par colonne. Les lignes sont numérotées de 1 à 3 de haut en bas, les colonnes vont de A à C de gauche à droite. Les coins et le centre sont des cases sombres, rayées ; les autres sont claires.",
       },
       {
-        p: "Touche un personnage puis une case (ou fais-le glisser). Toucher une case vide y place le prochain personnage en attente. Un personnage posé sur la ligne ou la colonne d’un autre renvoie celui-ci dans la réserve.",
+        p: "Touche un personnage puis une case (ou fais-le glisser). Toucher une case vide y place le prochain personnage en attente. Un personnage posé réserve sa ligne et sa colonne (lignes colorées) : pour les utiliser, déplace d’abord ce personnage, ou touche son emplacement vide à droite pour le renvoyer.",
       },
       { h2: "Mode Classique" },
       {
@@ -228,7 +231,7 @@ const messages: Messages = {
     steps: {
       meet: "Voici l’Étoile, le Rond et le Carré ! Tu vas les placer sur le plateau.",
       board:
-        "Le plateau a 3 lignes (1 à 3) et 3 colonnes (A à C). La règle d’or : exactement un personnage par ligne et un par colonne.",
+        "Le plateau a 3 lignes (1 à 3) et 3 colonnes (A à C). La règle d’or : exactement un personnage par ligne et un par colonne. Un personnage posé réserve sa ligne et sa colonne.",
       place: "Place les trois personnages : touche un personnage, puis une case. Tu peux aussi les faire glisser.",
       zoom: "Voici des cartes règles. Touche une loupe pour lire une carte en grand.",
       starRow1: "Rends la première carte vraie : mets l’Étoile sur la ligne 1.",
@@ -242,7 +245,7 @@ const messages: Messages = {
       classicIntro:
         "En mode Classique, personne ne te dit la taille du plus grand groupe, et le plateau reste bloqué pendant la recherche : tout se passe dans ta tête !",
       lockIn:
-        "Imagine où les personnages pourraient aller et trouve ton meilleur groupe, puis appuie sur Annoncer et choisis ton nombre. Indice : 4 cartes vont ensemble.",
+        "Imagine où les personnages pourraient aller et trouve ton meilleur groupe, puis appuie sur Annoncer et choisis ton nombre. Indice : ici, tu peux annoncer n’importe quel nombre de 1 à 4. Même une petite annonce fait gagner des cartes, si tu la prouves !",
       prove:
         "Le plateau est maintenant débloqué. Prouve-le : place les personnages, sélectionne exactement autant de cartes que ton annonce, puis appuie sur Démontrer.",
       retry:

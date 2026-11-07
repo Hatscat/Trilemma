@@ -122,6 +122,8 @@ export const en: Messages = {
     discarded: "These cards are discarded.",
     deckCleared: "Deck cleared!",
     notPossible: "That move is not possible right now.",
+    cellLocked: (c) => `${Name(c)} already uses this row or column: move it first.`,
+    tapCharacterFirst: "Tap a character to move it.",
   },
 
   dialogs: {
@@ -170,7 +172,7 @@ export const en: Messages = {
         p: "Three characters, the Star {star}, the Circle {circle} and the Square {square}, stand on a 3 × 3 board: exactly one character per row and one per column. Rows are numbered 1 to 3 from top to bottom, columns are lettered A to C from left to right. Corners and center are dark cells, with stripes; the others are light.",
       },
       {
-        p: "Tap a character, then a cell (or drag it). Tapping an empty cell places the next character waiting. A character placed in the row or column of another one sends it back.",
+        p: "Tap a character, then a cell (or drag it). Tapping an empty cell places the next character waiting. A placed character reserves its row and its column (colored lines): to use them, move that character first, or tap its empty spot on the right to send it back.",
       },
       { h2: "Classic mode" },
       {
@@ -220,7 +222,7 @@ export const en: Messages = {
     steps: {
       meet: "Meet the Star, the Circle and the Square! You will place them on the board.",
       board:
-        "The board has 3 rows (1 to 3) and 3 columns (A to C). The golden rule: exactly one character per row and one per column.",
+        "The board has 3 rows (1 to 3) and 3 columns (A to C). The golden rule: exactly one character per row and one per column. A placed character reserves its row and its column.",
       place: "Place the three characters: tap a character, then a cell. You can also drag them.",
       zoom: "These are rule cards. Tap a magnifier to read a card in big.",
       starRow1: "Make the first card true: move the Star to row 1.",
@@ -233,7 +235,7 @@ export const en: Messages = {
       classicIntro:
         "In Classic mode, nobody tells you the size of the largest group, and the board stays locked while you search: everything happens in your head!",
       lockIn:
-        "Imagine where the characters could go and find your best group, then press Lock in and choose your bid. Hint: 4 cards fit together.",
+        "Imagine where the characters could go and find your best group, then press Lock in and choose your bid. Hint: here you can bid any number from 1 to 4. Even a small bid wins cards, as long as you can prove it!",
       prove:
         "Now the board is unlocked. Prove it: place the characters, select exactly as many cards as your bid, then press Demonstrate.",
       retry: "One false card and the whole demonstration is void! Press Next round to try again with the same cards.",

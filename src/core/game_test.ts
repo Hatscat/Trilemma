@@ -106,6 +106,15 @@ Deno.test("classic: the search happens in the head, the board unlocks with the b
   assertEquals(canEditBoard(newGame(practice, T0)), true, "practice mode can use the board while searching");
 });
 
+Deno.test("a character cannot go in the row or column of another one", () => {
+  let s = newGame(practice, T0);
+  s = place(s, 0, 0); // Star on A1
+  assertThrows(() => place(s, 1, 2), GameError); // C1: the Star's row
+  assertThrows(() => place(s, 1, 0), GameError); // A1: the Star's cell
+  s = place(s, 0, 4); // The Star itself can move to B2
+  assertEquals(s.placement, [4, null, null]);
+});
+
 Deno.test("classic: the bid is strict", () => {
   let s = newGame(classic, T0);
   const { arrangement, cards } = optimalPlay(s);

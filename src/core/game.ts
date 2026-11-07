@@ -9,7 +9,14 @@
  * Times are passed in explicitly (`now`, in milliseconds) to keep the logic deterministic and testable.
  */
 
-import { arrangementIndex, EMPTY_PLACEMENT, placeCharacter, type Placement, placementToArrangement } from "./board.ts";
+import {
+  arrangementIndex,
+  blockerOf,
+  EMPTY_PLACEMENT,
+  placeCharacter,
+  type Placement,
+  placementToArrangement,
+} from "./board.ts";
 import { deckCards, type DeckChoice, getCard } from "./cards.ts";
 import { mulberry32, shuffled } from "./rng.ts";
 import { analyzeTable, isCardTrue, trueCards } from "./solver.ts";
@@ -168,6 +175,9 @@ function clearFeedback(phase: Phase): Phase {
 /** Places a character on a cell (`null` = back off the board). Conflicting characters leave the board. */
 export function place(state: GameState, character: number, cell: number | null): GameState {
   if (!canEditBoard(state)) fail(`Cannot move characters during "${state.phase.name}"`);
+  if (cell !== null && blockerOf(state.placement, character, cell) !== null) {
+    fail("This row or column is already used by another character");
+  }
   return { ...state, placement: placeCharacter(state.placement, character, cell), phase: clearFeedback(state.phase) };
 }
 

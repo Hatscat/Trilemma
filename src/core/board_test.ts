@@ -1,8 +1,9 @@
-import { assertEquals, assertNotEquals } from "@std/assert";
+import { assertEquals, assertNotEquals, assertThrows } from "@std/assert";
 import {
   arrangementIndex,
   ARRANGEMENTS,
   arrangementToPlacement,
+  blockerOf,
   cellIndex,
   cellLabel,
   characterAt,
@@ -34,14 +35,19 @@ Deno.test("parity: the number of characters on light cells is always 0 or 2", ()
   assertEquals(counts.filter((n) => n === 2).length, 24);
 });
 
-Deno.test("placing a character sends conflicting characters off the board", () => {
+Deno.test("a placed character reserves its row and its column", () => {
   let p = placeCharacter(EMPTY_PLACEMENT, 0, cellIndex(0, 0)); // Star on A1
   p = placeCharacter(p, 1, cellIndex(1, 1)); // Circle on B2
   assertEquals(p, [0, 4, null]);
-  p = placeCharacter(p, 2, cellIndex(0, 1)); // Square on B1: same row as Star, same column as Circle
-  assertEquals(p, [null, null, 1]);
+  assertEquals(blockerOf(p, 2, cellIndex(0, 2)), 0, "C1 is in the Star's row");
+  assertEquals(blockerOf(p, 2, cellIndex(2, 1)), 1, "B3 is in the Circle's column");
+  assertEquals(blockerOf(p, 2, cellIndex(2, 2)), null, "C3 is free for the Square");
+  assertEquals(blockerOf(p, 0, cellIndex(0, 2)), null, "a character never blocks itself");
+  assertThrows(() => placeCharacter(p, 2, cellIndex(0, 1)));
+  assertEquals(p, [0, 4, null], "other characters are never moved");
+  p = placeCharacter(p, 2, cellIndex(2, 2));
   p = placeCharacter(p, 2, null);
-  assertEquals(p, EMPTY_PLACEMENT);
+  assertEquals(p, [0, 4, null]);
 });
 
 Deno.test("moving a character keeps the others when there is no conflict", () => {

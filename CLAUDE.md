@@ -62,6 +62,9 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
 - Characters, in canonical order: Star (purple, 1 eye), Circle (green, 2 eyes), Square (red, 3 eyes). In texts, grid
   squares are always called **cells**, never "squares".
 - Arrangement: exactly one character per row and per column, so 36 arrangements in total.
+- Placement follows the golden rule strictly: a placed character reserves its row and its column, and `blockerOf` (in
+  `board.ts`) tells which character blocks a cell. Placing into a reserved cell is refused (`GameError`); other
+  characters are never moved automatically. The game view shows the reserved "lanes" and free / blocked cells.
 - Rule card = a predicate over arrangements. A group of cards is compatible if one arrangement satisfies them all.
 - Key invariants (proofs in docs/math.md):
   - Parity: the number of characters on light cells is always 0 or 2.

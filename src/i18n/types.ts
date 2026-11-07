@@ -126,6 +126,10 @@ export interface Messages {
     readonly discarded: string;
     readonly deckCleared: string;
     readonly notPossible: string;
+    /** A tapped cell is in the row or column of `character`. */
+    readonly cellLocked: (character: number) => string;
+    /** Every character is placed and none is selected: tapping an empty cell does nothing. */
+    readonly tapCharacterFirst: string;
   };
 
   // --- Dialogs -------------------------------------------------------------

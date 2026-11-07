@@ -144,8 +144,11 @@ In both modes:
 - **Target**: the number of cards to find (Practice) or the bid (Classic demonstration) is shown in large at the top,
   with one dot per selected card.
 - **Placing characters** (Practice search, Classic demonstration): tap a character then a cell, or drag it. Tapping an
-  empty cell places the next character waiting. A character placed in the row or column of another one sends it back to
-  the tray.
+  empty cell places the next character waiting.
+- **The golden rule, visible**: each placed character draws translucent bands of its color along its row and its column
+  ("lanes"). Those cells are locked for the other characters: while a character is selected, free cells show a target in
+  its color and locked cells a padlock. Tapping a locked cell shakes it, makes the blocking character hop and says which
+  one to move first. Nothing is ever moved automatically; tapping a character's empty spot in the tray sends it back.
 - **Cards**: tap a card to select it. Tap its magnifier (or press and hold the card) to zoom in on it and read its
   caption.
 - **Settings**: language (English, Français, Español; the browser language by default), base deck (55 cards) or full

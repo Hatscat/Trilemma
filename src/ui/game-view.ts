@@ -7,6 +7,7 @@
 import {
   ARRANGEMENTS,
   arrangementToPlacement,
+  blockerOf,
   CELL_COUNT,
   cellCol,
   cellLabel,
@@ -148,6 +149,7 @@ export class GameView {
     this.#clockTimer = setInterval(this.#tick, 250);
     this.#tick();
     document.addEventListener("visibilitychange", this.#onVisibility);
+    globalThis.addEventListener("blur", this.#onPointerCancel);
     if (state.phase.name === "bidding") queueMicrotask(() => this.#askBid(true));
     if (state.phase.name === "over") queueMicrotask(() => this.#showGameOver(false));
   }
@@ -169,6 +171,7 @@ export class GameView {
     clearTimeout(this.#longPress);
     this.#endDrag();
     document.removeEventListener("visibilitychange", this.#onVisibility);
+    globalThis.removeEventListener("blur", this.#onPointerCancel);
     closeAllDialogs();
   }
 
@@ -399,6 +402,7 @@ export class GameView {
     this.#board.classList.toggle("is-locked", !editable);
     // Classic search: the arrangement is only imagined, the characters wait in the tray.
     this.root.classList.toggle("is-imagining", this.#state.phase.name === "search" && !canEditBoard(this.#state));
+    this.#board.style.setProperty("--active-color", active === null ? "transparent" : `var(--character-${active})`);
     for (const [cell, button] of this.#cells.entries()) {
       const occupant = characterAt(placement, cell);
       if (button.dataset.occupant !== String(occupant)) {
@@ -408,16 +412,16 @@ export class GameView {
       }
       const row = cellRow(cell);
       const col = cellCol(cell);
-      let target = false;
-      let conflict = false;
-      if (active !== null && occupant !== active) {
-        conflict = placement.some((other, c) =>
-          c !== active && other !== null && (cellRow(other) === row || cellCol(other) === col)
-        );
-        target = !conflict;
-      }
-      button.classList.toggle("is-target", target);
-      button.classList.toggle("is-conflict", conflict);
+      // Lanes: each placed character reserves its row and its column, drawn as bands of its color.
+      const rowOwner = placement.findIndex((p) => p !== null && cellRow(p) === row);
+      const colOwner = placement.findIndex((p) => p !== null && cellCol(p) === col);
+      button.style.setProperty("--row-lane", rowOwner === -1 ? "transparent" : `var(--lane-${rowOwner})`);
+      button.style.setProperty("--col-lane", colOwner === -1 ? "transparent" : `var(--lane-${colOwner})`);
+      // While a character is selected: where it can go, and where the golden rule forbids it.
+      const free = active !== null && occupant === null && blockerOf(placement, active, cell) === null;
+      const blocked = active !== null && occupant === null && !free;
+      button.classList.toggle("is-free", free);
+      button.classList.toggle("is-blocked", blocked);
       button.classList.toggle("is-active", occupant !== null && occupant === active && activeCell === cell);
       button.classList.toggle("has-piece", occupant !== null);
       button.setAttribute("aria-disabled", String(!editable));
@@ -436,6 +440,7 @@ export class GameView {
         if (offBoard) slot.querySelector("svg")!.dataset.piece = String(c);
       }
       slot.classList.toggle("is-active", offBoard && active === c);
+      slot.classList.toggle("is-return", !offBoard && active === c);
       slot.setAttribute("aria-disabled", String(!this.#editable));
       slot.setAttribute("aria-label", t().game.traySlotLabel(c, offBoard));
     }
@@ -696,19 +701,45 @@ export class GameView {
     if (!this.#editable) return;
     const placement = this.#state.placement;
     const occupant = characterAt(placement, cell);
-    if (this.#active !== null) {
-      const active = this.#active;
-      this.#active = null;
-      if (occupant === active) this.#render();
-      else this.#apply((s) => place(s, active, cell));
-    } else if (occupant !== null) {
-      this.#active = occupant;
+    if (occupant !== null) {
+      // Tapping a character selects it (or unselects it), so it can be moved.
+      this.#active = this.#active === occupant ? null : occupant;
       this.#render();
-    } else {
-      // Shortcut: an empty cell receives the first character still off the board.
-      const next = placement.findIndex((p) => p === null);
-      if (next !== -1) this.#apply((s) => place(s, next, cell));
+      return;
     }
+    // An empty cell receives the selected character, or else the first one still off the board.
+    const mover = this.#active ?? placement.findIndex((p) => p === null);
+    if (mover === -1) {
+      this.#showFlash(t().game.tapCharacterFirst);
+      return;
+    }
+    this.#moveTo(mover, cell);
+  }
+
+  /** Moves a character to a cell, or explains why the golden rule forbids it. */
+  #moveTo(character: number, cell: number): void {
+    const blocker = blockerOf(this.#state.placement, character, cell);
+    if (blocker !== null) {
+      this.#showBlocked(cell, blocker);
+      return;
+    }
+    this.#active = null;
+    this.#apply((s) => place(s, character, cell));
+  }
+
+  /** The tapped cell shakes, the character that reserves its row or column hops, and the reason is shown. */
+  #showBlocked(cell: number, blocker: number): void {
+    const target = this.#cells[cell];
+    const blockerCell = this.#state.placement[blocker];
+    const hop = blockerCell === null ? null : this.#cells[blockerCell];
+    for (const [element, name] of [[target, "is-denied"], [hop, "is-blocker"]] as const) {
+      if (!element) continue;
+      element.classList.remove(name);
+      void element.offsetWidth; // Restart the animation.
+      element.classList.add(name);
+      setTimeout(() => element.classList.remove(name), 700);
+    }
+    this.#showFlash(t().game.cellLocked(blocker));
   }
 
   #tapTray(character: number): void {
@@ -731,7 +762,8 @@ export class GameView {
       return;
     }
     const piece = target.closest<SVGElement>("[data-piece]");
-    if (!piece || !this.#editable || event.button !== 0) return;
+    // One drag at a time: extra fingers are ignored (they used to leave a ghost image behind).
+    if (!piece || !this.#editable || event.button !== 0 || !event.isPrimary || this.#drag) return;
     const character = Number(piece.dataset.piece);
     this.#drag = {
       character,
@@ -774,9 +806,20 @@ export class GameView {
       this.#suppressClick = true;
       setTimeout(() => (this.#suppressClick = false), 0);
       this.#active = null;
-      if (cell) this.#apply((s) => place(s, drag.character, Number(cell.dataset.cell)));
-      else if (drag.fromBoard) this.#apply((s) => place(s, drag.character, null));
-      else this.#render();
+      const target = cell ? Number(cell.dataset.cell) : null;
+      const occupant = target === null ? null : characterAt(this.#state.placement, target);
+      if (target === null) {
+        if (drag.fromBoard) this.#apply((s) => place(s, drag.character, null));
+        else this.#render();
+      } else if (occupant === drag.character) {
+        this.#render();
+      } else if (occupant !== null) {
+        this.#render();
+        this.#showBlocked(target, occupant);
+      } else {
+        this.#moveTo(drag.character, target);
+        this.#render();
+      }
     }
     this.#endDrag();
   };
@@ -789,6 +832,8 @@ export class GameView {
 
   #endDrag(): void {
     this.#drag?.ghost?.remove();
+    // Defensive: no ghost image may ever outlive a drag.
+    for (const ghost of document.querySelectorAll(".drag-ghost")) ghost.remove();
     this.#drag = null;
     this.root?.classList.remove("is-dragging");
     for (const cell of this.#cells) cell.classList.remove("is-hover");
