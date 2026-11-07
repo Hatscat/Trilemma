@@ -37,6 +37,8 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
   Vite plugin in `vite.config.ts` (`public/screenshots/` is excluded: those images are only for the install dialog).
 - `src/ui/install.ts`: installation offer (`beforeinstallprompt` on Chromium, instructions on iPhone/iPad, hidden when
   running installed) and the "new version" banner shown on service worker `controllerchange`.
+- `index.html`: Open Graph / Twitter meta tags for link previews, with absolute URLs on the production domain.
+  `public/og-image.png` comes from `deno task og-image` (regenerate it after visual changes to the characters or cards).
 - `public/manifest.webmanifest`: `display: fullscreen`. After visible UI changes, refresh the install dialog screenshots
   with `deno task screenshots`.
 - CSS is linked from `index.html`, not imported from TypeScript (Deno cannot type-check CSS imports).

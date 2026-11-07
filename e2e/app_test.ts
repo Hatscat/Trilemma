@@ -113,6 +113,12 @@ Deno.test({
         await page.goto(home);
         assertEquals(await page.textContent("h1"), "Trilemma");
         assertEquals(await page.getAttribute('link[rel="manifest"]', "href"), "./manifest.webmanifest");
+        // Link previews: the image URL points to production, the same file is served by this build.
+        const ogImage = (await page.getAttribute('meta[property="og:image"]', "content"))!;
+        assertEquals(ogImage, "https://trilemma.lonebee.games/og-image.png");
+        assertEquals(await page.getAttribute('meta[name="twitter:card"]', "content"), "summary_large_image");
+        const preview = await page.evaluate(() => fetch("./og-image.png").then((r) => r.headers.get("content-type")));
+        assertEquals(preview, "image/png");
         assert(await page.isVisible('[data-mode="classic"]'));
         assert(await page.isVisible('[data-mode="practice"]'));
         await screenshot(page, "01-home");

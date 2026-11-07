@@ -26,7 +26,8 @@
     "cards": "deno run analysis/analyze.ts cards",
     "icons": "deno run -A scripts/generate-icons.ts",
     "print": "deno run -A print/generate.ts",
-    "screenshots": "deno task build && deno run -A scripts/generate-screenshots.ts"
+    "screenshots": "deno task build && deno run -A scripts/generate-screenshots.ts",
+    "og-image": "deno run -A scripts/generate-og-image.ts"
   },
   "fmt": {
     "lineWidth": 120,

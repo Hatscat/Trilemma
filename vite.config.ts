@@ -40,7 +40,8 @@ function serviceWorker(): Plugin {
         urls.push(fileName);
         hash.update(fileName).update(output.type === "chunk" ? output.code : output.source);
       }
-      const precached = (file: string) => !file.startsWith("screenshots/");
+      // Install dialog screenshots and the link preview image are never needed offline.
+      const precached = (file: string) => !file.startsWith("screenshots/") && file !== "og-image.png";
       for (const file of publicDir ? listFiles(publicDir).filter(precached) : []) {
         urls.push(file);
         hash.update(file).update(readFileSync(join(publicDir, file)));
