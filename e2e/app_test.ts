@@ -21,7 +21,7 @@ const MOBILE = { width: 390, height: 844 };
 
 /** The game the app deals for `?seed=42` with the default settings. */
 function expectedGame(mode: GameConfig["mode"]): GameState {
-  return newGame({ mode, deck: "base", timerSeconds: null, seed: SEED }, 0);
+  return newGame({ mode, deck: "base", timerSeconds: null, seed: SEED, pro: false }, 0);
 }
 
 function solve(state: GameState) {
@@ -428,6 +428,32 @@ Deno.test({
         assertEquals(await page.locator(".drag-ghost").count(), 0);
         await page.click('[data-action="exit"]');
         assertEquals(await page.locator(".drag-ghost").count(), 0);
+        await session.close();
+      });
+
+      await t.step("pro mode hides the board while the player thinks", async () => {
+        const session = await newPage(browser);
+        const { page } = session;
+        await page.goto(home);
+        await page.click('label[for="pro-1"]'); // Pro mode: On
+        await page.click('[data-mode="classic"]');
+        await page.waitForSelector(".board-hidden-note");
+        assert(await page.isHidden(".board-zone"), "classic: no board before the bid");
+        assertEquals(await page.textContent(".pro-badge"), "Pro");
+        assertStringIncludes((await page.textContent(".board-hidden-note")) ?? "", "after your bid");
+        await screenshot(page, "17-pro-classic");
+        await lockInBid(page, 3);
+        assert(await page.isVisible(".board-zone"), "the board appears for the demonstration");
+
+        await page.click('[data-action="exit"]');
+        await page.click('[data-mode="practice"]');
+        await page.click(".dialog-actions .btn-primary"); // Confirm the new game
+        await page.waitForSelector('[data-action="reveal-board"]');
+        assert(await page.isHidden(".board-zone"), "practice: no board before asking for it");
+        await page.click('[data-action="reveal-board"]');
+        assert(await page.isVisible(".board-zone"));
+        await page.click('[data-cell="0"]');
+        assertEquals(await page.getAttribute('[data-cell="0"]', "data-occupant"), "0");
         await session.close();
       });
 

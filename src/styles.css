@@ -377,6 +377,12 @@ p {
   box-shadow: none;
 }
 
+.segmented-hint {
+  margin: 6px 2px 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
 .segmented-option input:focus-visible + label {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
@@ -551,6 +557,40 @@ p {
   50% {
     transform: scale(1.08);
   }
+}
+
+/* Pro mode: the board and the characters are hidden while the player thinks. */
+.is-board-hidden .board-zone {
+  display: none;
+}
+
+.board-hidden-note {
+  width: min(100%, 540px);
+  margin: 0;
+  padding: 10px 14px;
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.board-hidden-note[hidden] {
+  display: none;
+}
+
+.pro-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--group-expert);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 0.15em;
 }
 
 .play-area {
@@ -1105,8 +1145,10 @@ p {
   box-shadow: inset 0 3px 0 var(--bad);
 }
 
-/* Classic search: the board and the cards are locked, so "Lock in" gently pulses to show what to do next. */
-.action-bar [data-action="lock-in"] {
+/* Classic search: the board and the cards are locked, so "Lock in" gently pulses to show what to do next.
+   Same for "Show the board" in a practice game in pro mode. */
+.action-bar [data-action="lock-in"],
+.action-bar [data-action="reveal-board"] {
   animation: cta-pulse 1.8s ease-out infinite;
 }
 

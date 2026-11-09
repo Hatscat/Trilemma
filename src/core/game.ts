@@ -32,6 +32,11 @@ export interface GameConfig {
   /** Classic mode search time limit, in seconds. `null` means no timer. */
   readonly timerSeconds: number | null;
   readonly seed: number;
+  /**
+   * Pro mode: the board and the characters are hidden while the player thinks (classic: until the bid; practice:
+   * until the player asks to see the board), so the arrangement has to be pictured mentally.
+   */
+  readonly pro: boolean;
 }
 
 export interface CardCheck {
@@ -93,6 +98,8 @@ export interface GameState {
   readonly startedAt: number;
   readonly roundStartedAt: number;
   readonly roundMistakes: number;
+  /** Practice pro mode: the player asked to see the board this round. */
+  readonly boardRevealed: boolean;
   readonly finishedAt: number | null;
 }
 
@@ -109,7 +116,7 @@ export function tableCards(state: GameState): string[] {
 }
 
 function startRound(
-  state: Omit<GameState, "target" | "phase" | "roundStartedAt" | "roundMistakes">,
+  state: Omit<GameState, "target" | "phase" | "roundStartedAt" | "roundMistakes" | "boardRevealed">,
   now: number,
 ): GameState {
   const cards = state.table.filter((id): id is string => id !== null);
@@ -123,6 +130,7 @@ function startRound(
     phase: { name: "search", deadline, feedback: null },
     roundStartedAt: now,
     roundMistakes: 0,
+    boardRevealed: false,
   };
 }
 
@@ -161,11 +169,27 @@ function dealGame(config: GameConfig, order: readonly string[], now: number): Ga
 /**
  * Whether characters can be moved and cards selected.
  * Classic mode, like the tabletop game: the search happens in the player's head, so the board and the cards are
- * locked until the bid is locked in. Practice mode: they can be used while searching.
+ * locked until the bid is locked in. Practice mode: they can be used while searching (in pro mode, once the board is
+ * shown).
  */
 export function canEditBoard(state: GameState): boolean {
   const { phase } = state;
-  return phase.name === "demonstrate" || (phase.name === "search" && state.config.mode === "practice");
+  if (phase.name === "demonstrate") return true;
+  return phase.name === "search" && state.config.mode === "practice" && !isBoardHidden(state);
+}
+
+/** Pro mode: the board and the characters are not shown while the player thinks. */
+export function isBoardHidden(state: GameState): boolean {
+  if (state.config.pro !== true) return false;
+  const { phase } = state;
+  if (phase.name === "bidding") return true;
+  return phase.name === "search" && !(state.config.mode === "practice" && state.boardRevealed === true);
+}
+
+/** Practice pro mode: the player is ready to place the characters, the board appears for the rest of the round. */
+export function revealBoard(state: GameState): GameState {
+  if (state.config.mode !== "practice" || !isBoardHidden(state)) fail("The board is not hidden");
+  return { ...state, boardRevealed: true };
 }
 
 function clearFeedback(phase: Phase): Phase {

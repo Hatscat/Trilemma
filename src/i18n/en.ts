@@ -56,11 +56,15 @@ export const en: Messages = {
     deckBase: "Base · 55",
     deckFull: "Full · 91",
     timer: "Classic timer",
+    pro: "Pro mode",
+    proOff: "Off",
+    proOn: "On",
+    proHint: "The board is hidden while you think: picture it in your head.",
     timerOff: "Off",
     timerMinutes: (minutes) => `${minutes} min`,
     language: "Language",
     howToPlay: "How to play",
-    records: (fullDeck) => `Records · ${fullDeck ? "full deck" : "base deck"}`,
+    records: (fullDeck, pro) => `Records · ${fullDeck ? "full deck" : "base deck"}${pro ? " · pro" : ""}`,
     recordLine: (best, played) => ` best: ${best} (${played} played)`,
     rounds: (n) => `${n} ${plural(n, "round", "rounds")}`,
     newGameTitle: "Start a new game?",
@@ -94,6 +98,12 @@ export const en: Messages = {
     seeResults: "See results",
     bestGroup: "Best group",
     myArrangement: "My arrangement",
+    proBadge: "Pro",
+    boardHidden: (mode) =>
+      mode === "classic"
+        ? "Pro mode: the board appears after your bid."
+        : "Pro mode: show the board when you are ready to place the characters.",
+    showBoard: "Show the board",
     searchClassic: "Find the largest group of cards that can all be true at once.",
     searchPractice: (target) => `Find ${target} cards that can all be true at once.`,
     falseCardRetry: (number) => `Card ${number} is false for this arrangement. Try again!`,
@@ -144,7 +154,8 @@ export const en: Messages = {
 
   over: {
     title: "Deck cleared!",
-    subtitle: (mode, fullDeck) => `${mode === "classic" ? "Classic" : "Practice"} · ${fullDeck ? "Full" : "Base"} deck`,
+    subtitle: (mode, fullDeck, pro) =>
+      `${mode === "classic" ? "Classic" : "Practice"}${pro ? " pro" : ""} · ${fullDeck ? "Full" : "Base"} deck`,
     newBestRounds: "New record: fewest rounds!",
     newBestTime: "New record: fastest game!",
     rounds: "Rounds",
@@ -186,6 +197,10 @@ export const en: Messages = {
       { h2: "Practice mode" },
       {
         p: "The size of the largest group is announced, and you can use the board while you search. Find a group of that size, place the characters and check. Wrong checks count as mistakes. Any valid group is accepted.",
+      },
+      { h2: "Pro mode" },
+      {
+        p: "An option for experienced players: the board and the characters are hidden while you think. In Classic mode they appear after your bid; in Practice mode, when you choose to show the board.",
       },
       { h2: "Reading the cards" },
       {

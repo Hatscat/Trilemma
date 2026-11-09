@@ -152,9 +152,12 @@ In both modes:
 - **Cards**: tap a card to select it. Tap its magnifier (or press and hold the card) to zoom in on it and read its
   caption.
 - **Settings**: language (English, Français, Español; the browser language by default), base deck (55 cards) or full
-  deck (91 cards), and the Classic timer (off, 1, 2, 3 or 5 minutes).
+  deck (91 cards), pro mode, and the Classic timer (off, 1, 2, 3 or 5 minutes).
+- **Pro mode** (for experienced players): the board and the characters are hidden while the player thinks, so the
+  arrangement must be pictured mentally. In Classic mode they appear after the bid; in Practice mode, when the player
+  taps "Show the board" (it then stays visible until the end of the round). A game keeps the setting it started with.
 - The game in progress is saved on the device, and its clock is paused while the app is in the background.
-- Personal records per mode and deck: fewest rounds and fastest game.
+- Personal records per mode, deck and pro mode: fewest rounds and fastest game.
 
 Planned: hints, a daily puzzle, local and online multiplayer, and a printable edition. See
 [docs/roadmap.md](docs/roadmap.md).

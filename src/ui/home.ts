@@ -21,10 +21,12 @@ function segmented<T>(
   options: readonly { value: T; label: string }[],
   current: T,
   onChange: (value: T) => void,
+  hint?: string,
 ): HTMLElement {
+  const hintId = hint ? `${name}-hint` : undefined;
   return h(
     "fieldset",
-    { class: "segmented" },
+    { class: "segmented", "aria-describedby": hintId },
     h("legend", {}, legend),
     h(
       "div",
@@ -46,6 +48,7 @@ function segmented<T>(
         );
       }),
     ),
+    hint ? h("p", { class: "segmented-hint", id: hintId }, hint) : null,
   );
 }
 
@@ -63,11 +66,14 @@ export function renderHome(
     renderRecords();
   };
 
-  const records = h("section", { class: "records", "aria-label": m.home.records(current.deck === "full") });
+  const records = h("section", {
+    class: "records",
+    "aria-label": m.home.records(current.deck === "full", current.pro),
+  });
   const renderRecords = () => {
     const all = loadRecords();
     const lines = (["classic", "practice"] as const).flatMap((mode) => {
-      const r = all[recordKey(mode, current.deck)];
+      const r = all[recordKey(mode, current.deck, current.pro)];
       if (!r || r.played === 0) return [];
       const best = [
         r.bestRounds !== null ? m.home.rounds(r.bestRounds) : null,
@@ -76,7 +82,9 @@ export function renderHome(
       return [h("li", {}, h("strong", {}, m.game.modeName(mode)), m.home.recordLine(best || "—", r.played))];
     });
     records.replaceChildren(
-      ...(lines.length > 0 ? [h("h2", {}, m.home.records(current.deck === "full")), h("ul", {}, ...lines)] : []),
+      ...(lines.length > 0
+        ? [h("h2", {}, m.home.records(current.deck === "full", current.pro)), h("ul", {}, ...lines)]
+        : []),
     );
   };
   renderRecords();
@@ -155,6 +163,14 @@ export function renderHome(
         [{ value: "base", label: m.home.deckBase }, { value: "full", label: m.home.deckFull }],
         current.deck,
         (deck) => update({ deck }),
+      ),
+      segmented<boolean>(
+        "pro",
+        m.home.pro,
+        [{ value: false, label: m.home.proOff }, { value: true, label: m.home.proOn }],
+        current.pro,
+        (pro) => update({ pro }),
+        m.home.proHint,
       ),
       segmented<number | null>(
         "timer",

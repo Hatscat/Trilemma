@@ -108,7 +108,7 @@ export class Tutorial {
     const lesson = LESSONS[index];
     const last = index === LESSONS.length - 1;
     const state = newScriptedGame(
-      { mode: lesson.mode, deck: "base", timerSeconds: null, seed: 0 },
+      { mode: lesson.mode, deck: "base", timerSeconds: null, seed: 0, pro: false },
       lesson.cards,
       Date.now(),
     );

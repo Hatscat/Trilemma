@@ -61,11 +61,15 @@ export const es: Messages = {
     deckBase: "Básico · 55",
     deckFull: "Completo · 91",
     timer: "Temporizador del modo Clásico",
+    pro: "Modo pro",
+    proOff: "No",
+    proOn: "Sí",
+    proHint: "El tablero se oculta mientras piensas: imagínalo en tu cabeza.",
     timerOff: "No",
     timerMinutes: (minutes) => `${minutes} min`,
     language: "Idioma",
     howToPlay: "Cómo jugar",
-    records: (fullDeck) => `Récords · mazo ${fullDeck ? "completo" : "básico"}`,
+    records: (fullDeck, pro) => `Récords · mazo ${fullDeck ? "completo" : "básico"}${pro ? " · pro" : ""}`,
     recordLine: (best, played) => ` mejor: ${best} (${played} partida${s(played)})`,
     rounds: (n) => `${n} ronda${s(n)}`,
     newGameTitle: "¿Empezar una partida nueva?",
@@ -99,6 +103,12 @@ export const es: Messages = {
     seeResults: "Ver resultados",
     bestGroup: "Mejor grupo",
     myArrangement: "Mi colocación",
+    proBadge: "Pro",
+    boardHidden: (mode) =>
+      mode === "classic"
+        ? "Modo pro: el tablero aparece después de tu anuncio."
+        : "Modo pro: muestra el tablero cuando quieras colocar los personajes.",
+    showBoard: "Mostrar el tablero",
     searchClassic: "Encuentra el grupo más grande de cartas que pueden ser verdaderas a la vez.",
     searchPractice: (target) => `Encuentra ${target} cartas que pueden ser verdaderas a la vez.`,
     falseCardRetry: (number) => `La carta ${number} es falsa con esta colocación. ¡Inténtalo de nuevo!`,
@@ -150,7 +160,8 @@ export const es: Messages = {
 
   over: {
     title: "¡Mazo terminado!",
-    subtitle: (mode, fullDeck) => `${modeName(mode)} · mazo ${fullDeck ? "completo" : "básico"}`,
+    subtitle: (mode, fullDeck, pro) =>
+      `${modeName(mode)}${pro ? " pro" : ""} · mazo ${fullDeck ? "completo" : "básico"}`,
     newBestRounds: "¡Nuevo récord: menos rondas!",
     newBestTime: "¡Nuevo récord: partida más rápida!",
     rounds: "Rondas",
@@ -192,6 +203,10 @@ export const es: Messages = {
       { h2: "Modo Práctica" },
       {
         p: "Se anuncia el tamaño del grupo más grande y puedes usar el tablero mientras buscas. Encuentra un grupo de ese tamaño, coloca los personajes y comprueba. Cada comprobación equivocada cuenta como un error. Se acepta cualquier grupo válido.",
+      },
+      { h2: "Modo pro" },
+      {
+        p: "Una opción para jugadores expertos: el tablero y los personajes se ocultan mientras piensas. En el modo Clásico aparecen después de tu anuncio; en el modo Práctica, cuando decides mostrar el tablero.",
       },
       { h2: "Leer las cartas" },
       {

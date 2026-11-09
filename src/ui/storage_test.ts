@@ -3,7 +3,7 @@ import { newGame } from "../core/game.ts";
 import { migrateRecords, migrateSavedGame, type SavedGame } from "./storage.ts";
 
 Deno.test("a saved game from v0.2 in challenge mode is migrated to practice mode", () => {
-  const state = newGame({ mode: "practice", deck: "base", timerSeconds: null, seed: 1 }, 0);
+  const state = newGame({ mode: "practice", deck: "base", timerSeconds: null, seed: 1, pro: false }, 0);
   const legacy = {
     savedAt: 5,
     state: { ...state, config: { ...state.config, mode: "challenge" } },
@@ -11,6 +11,14 @@ Deno.test("a saved game from v0.2 in challenge mode is migrated to practice mode
   assertEquals(migrateSavedGame(legacy), { savedAt: 5, state });
   const current: SavedGame = { savedAt: 5, state };
   assertEquals(migrateSavedGame(current), current);
+});
+
+Deno.test("a game saved before pro mode existed is a normal game", () => {
+  const state = newGame({ mode: "classic", deck: "base", timerSeconds: null, seed: 1, pro: false }, 0);
+  const { pro: _, ...oldConfig } = state.config;
+  const { boardRevealed: __, ...oldState } = state;
+  const legacy = { savedAt: 5, state: { ...oldState, config: oldConfig } } as unknown as SavedGame;
+  assertEquals(migrateSavedGame(legacy), { savedAt: 5, state });
 });
 
 Deno.test("records from v0.2 keep their values under the new mode name", () => {

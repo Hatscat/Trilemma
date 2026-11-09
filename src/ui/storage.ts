@@ -46,6 +46,8 @@ export interface Settings {
   readonly timerSeconds: number | null;
   /** Chosen language, `null` = follow the browser. */
   readonly lang: Lang | null;
+  /** Pro mode: the board is hidden while the player thinks (see `GameConfig.pro`). */
+  readonly pro: boolean;
   readonly tutorialDone: boolean;
 }
 
@@ -57,6 +59,7 @@ export function loadSettings(): Settings {
     deck: s?.deck === "full" ? "full" : "base",
     timerSeconds: TIMER_CHOICES.includes(s?.timerSeconds ?? null) ? s?.timerSeconds ?? null : null,
     lang: isLang(s?.lang) ? s.lang : null,
+    pro: s?.pro === true,
     tutorialDone: s?.tutorialDone === true,
   };
 }
@@ -72,10 +75,18 @@ const RENAMED_MODES: Readonly<Record<string, Mode>> = { challenge: "practice" };
 
 /** Brings a saved game written by an earlier version up to date. */
 export function migrateSavedGame(saved: SavedGame): SavedGame {
-  const mode: string = saved.state?.config?.mode;
-  const renamed = RENAMED_MODES[mode];
-  if (!renamed) return saved;
-  return { ...saved, state: { ...saved.state, config: { ...saved.state.config, mode: renamed } } };
+  const state = saved.state;
+  if (!state?.config) return saved;
+  const mode: string = state.config.mode;
+  return {
+    ...saved,
+    state: {
+      ...state,
+      // Games saved before pro mode existed are normal games.
+      boardRevealed: state.boardRevealed === true,
+      config: { ...state.config, mode: RENAMED_MODES[mode] ?? state.config.mode, pro: state.config.pro === true },
+    },
+  };
 }
 
 /** Brings records written by an earlier version up to date (keys are `<mode>-<deck>`). */
@@ -123,8 +134,9 @@ export interface GameRecord {
 
 export type Records = Record<string, GameRecord>;
 
-export function recordKey(mode: Mode, deck: DeckChoice): string {
-  return `${mode}-${deck}`;
+/** Records are kept per mode, deck and pro mode (pro games are not comparable with normal ones). */
+export function recordKey(mode: Mode, deck: DeckChoice, pro: boolean): string {
+  return `${mode}-${deck}${pro ? "-pro" : ""}`;
 }
 
 export function loadRecords(): Records {
@@ -135,10 +147,11 @@ export function loadRecords(): Records {
 export function addFinishedGame(
   mode: Mode,
   deck: DeckChoice,
+  pro: boolean,
   summary: GameSummary,
 ): { record: GameRecord; newBestRounds: boolean; newBestTime: boolean } {
   const records = loadRecords();
-  const key = recordKey(mode, deck);
+  const key = recordKey(mode, deck, pro);
   const old = records[key] ?? { played: 0, bestRounds: null, bestTimeMs: null };
   // In practice mode, revealed solutions do not count as a clean finish for records.
   const eligible = mode === "classic" || summary.revealedRounds === 0;

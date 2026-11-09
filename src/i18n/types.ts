@@ -56,11 +56,15 @@ export interface Messages {
     readonly deckBase: string;
     readonly deckFull: string;
     readonly timer: string;
+    readonly pro: string;
+    readonly proOff: string;
+    readonly proOn: string;
+    readonly proHint: string;
     readonly timerOff: string;
     readonly timerMinutes: (minutes: number) => string;
     readonly language: string;
     readonly howToPlay: string;
-    readonly records: (fullDeck: boolean) => string;
+    readonly records: (fullDeck: boolean, pro: boolean) => string;
     readonly recordLine: (best: string, played: number) => string;
     readonly rounds: (n: number) => string;
     readonly newGameTitle: string;
@@ -94,6 +98,11 @@ export interface Messages {
     readonly seeResults: string;
     readonly bestGroup: string;
     readonly myArrangement: string;
+    /** Small badge next to the mode name in pro games. */
+    readonly proBadge: string;
+    /** Pro mode: shown instead of the hidden board. */
+    readonly boardHidden: (mode: Mode) => string;
+    readonly showBoard: string;
     readonly searchClassic: string;
     readonly searchPractice: (target: number) => string;
     readonly falseCardRetry: (number: number) => string;
@@ -149,7 +158,7 @@ export interface Messages {
   // --- End of game ---------------------------------------------------------
   readonly over: {
     readonly title: string;
-    readonly subtitle: (mode: Mode, fullDeck: boolean) => string;
+    readonly subtitle: (mode: Mode, fullDeck: boolean, pro: boolean) => string;
     readonly newBestRounds: string;
     readonly newBestTime: string;
     readonly rounds: string;

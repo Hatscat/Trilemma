@@ -30,11 +30,13 @@ import {
   GameError,
   type GameState,
   giveUp,
+  isBoardHidden,
   lockIn,
   type Mode,
   nextRound,
   place,
   remainingMs,
+  revealBoard,
   type RoundResult,
   shiftTime,
   summarize,
@@ -130,6 +132,8 @@ export class GameView {
   #stats = h("span", { class: "stats" });
   #clock = h("span", { class: "clock", role: "timer", "aria-live": "off" });
   #targetBar = h("section", { class: "target-bar", role: "status" });
+  /** Pro mode: replaces the board while it is hidden. */
+  #hiddenNote = h("p", { class: "board-hidden-note", hidden: true });
   #targetKey = "";
   #board = h("div", { class: "board-cells", role: "group" });
   #tray = h("div", { class: "tray", "data-tray": "", role: "group" });
@@ -189,6 +193,7 @@ export class GameView {
     const m = t().game;
     const mode = this.#state.config.mode;
     this.#title.textContent = this.#options.title ?? m.modeName(mode);
+    if (this.#state.config.pro) this.#title.append(" ", h("span", { class: "pro-badge" }, m.proBadge));
     this.#board.setAttribute("aria-label", m.boardLabel);
     this.#tray.setAttribute("aria-label", m.trayLabel);
     this.#cards.setAttribute("aria-label", m.cardsLabel);
@@ -235,7 +240,13 @@ export class GameView {
       this.#header,
       this.#targetBar,
       this.#options.banner ?? null,
-      h("section", { class: "play-area" }, h("div", { class: "board-zone" }, board, this.#tray), this.#cards),
+      h(
+        "section",
+        { class: "play-area" },
+        this.#hiddenNote,
+        h("div", { class: "board-zone" }, board, this.#tray),
+        this.#cards,
+      ),
       this.#actions,
     );
     root.addEventListener("click", this.#onClick);
@@ -402,6 +413,11 @@ export class GameView {
     this.#board.classList.toggle("is-locked", !editable);
     // Classic search: the arrangement is only imagined, the characters wait in the tray.
     this.root.classList.toggle("is-imagining", this.#state.phase.name === "search" && !canEditBoard(this.#state));
+    // Pro mode: no board and no characters while the player thinks.
+    const hidden = isBoardHidden(this.#state);
+    this.root.classList.toggle("is-board-hidden", hidden);
+    this.#hiddenNote.hidden = !hidden;
+    if (hidden) this.#hiddenNote.textContent = m.boardHidden(this.#state.config.mode);
     this.#board.style.setProperty("--active-color", active === null ? "transparent" : `var(--character-${active})`);
     for (const [cell, button] of this.#cells.entries()) {
       const occupant = characterAt(placement, cell);
@@ -548,6 +564,16 @@ export class GameView {
             status: flash ?? m.searchClassic,
             tone: flash ? "bad" : "info",
             buttons: [{ label: m.lockIn, action: "lock-in", primary: true }],
+          };
+        }
+        if (isBoardHidden(s)) {
+          return {
+            status: flash ?? m.searchPractice(s.target),
+            tone: flash ? "bad" : "info",
+            buttons: [
+              { label: m.giveUp, action: "give-up" },
+              { label: m.showBoard, action: "reveal-board", primary: true },
+            ],
           };
         }
         const missing = missingFor(s.target, count, placed);
@@ -922,6 +948,9 @@ export class GameView {
         this.#showSolution = !this.#showSolution;
         this.#render();
         break;
+      case "reveal-board":
+        this.#apply((s) => revealBoard(s));
+        break;
       case "next-round":
         this.#apply((s) => nextRound(s, now()));
         break;
@@ -943,7 +972,8 @@ export class GameView {
     const s = this.#state;
     const summary = summarize(s, Date.now());
     const { mode, deck } = s.config;
-    const records = justFinished ? addFinishedGame(mode, deck, summary) : null;
+    const pro = s.config.pro === true;
+    const records = justFinished ? addFinishedGame(mode, deck, pro, summary) : null;
     const rows: [string, string][] = [
       [o.rounds, String(summary.rounds)],
       [o.cardsWon, String(summary.cardsWon)],
@@ -962,7 +992,7 @@ export class GameView {
       "div",
       { class: "dialog-body game-over" },
       h("h2", {}, o.title),
-      h("p", {}, o.subtitle(mode, deck === "full")),
+      h("p", {}, o.subtitle(mode, deck === "full", pro)),
       ...badges.map((b) => h("p", { class: "record-badge" }, b)),
       h("dl", { class: "summary" }, ...rows.flatMap(([k, v]) => [h("dt", {}, k), h("dd", {}, v)])),
       h(

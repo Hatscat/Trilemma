@@ -9,12 +9,14 @@ import {
   GameError,
   type GameState,
   giveUp,
+  isBoardHidden,
   isGameState,
   lockIn,
   newGame,
   nextRound,
   place,
   remainingMs,
+  revealBoard,
   shiftTime,
   summarize,
   TABLE_SIZE,
@@ -24,7 +26,7 @@ import {
 import { analyzeTable, isCardTrue, trueCards } from "./solver.ts";
 
 const T0 = 1_000_000;
-const classic: GameConfig = { mode: "classic", deck: "base", timerSeconds: null, seed: 42 };
+const classic: GameConfig = { mode: "classic", deck: "base", timerSeconds: null, seed: 42, pro: false };
 const practice: GameConfig = { ...classic, mode: "practice" };
 
 /** Places the characters for `arrangement` and selects `cards`. */
@@ -113,6 +115,28 @@ Deno.test("a character cannot go in the row or column of another one", () => {
   assertThrows(() => place(s, 1, 0), GameError); // A1: the Star's cell
   s = place(s, 0, 4); // The Star itself can move to B2
   assertEquals(s.placement, [4, null, null]);
+});
+
+Deno.test("pro mode, classic: the board is hidden until the bid", () => {
+  let s = newGame({ ...classic, pro: true }, T0);
+  assertEquals(isBoardHidden(s), true);
+  assertThrows(() => revealBoard(s), GameError); // Classic games reveal the board with the bid.
+  s = lockIn(s, 3);
+  assertEquals(isBoardHidden(s), false);
+  assertEquals(canEditBoard(s), true);
+  assertEquals(isBoardHidden(newGame(classic, T0)), false, "normal games always show the board");
+});
+
+Deno.test("pro mode, practice: the board appears when the player asks, for the rest of the round", () => {
+  let s = newGame({ ...practice, pro: true }, T0);
+  assertEquals(isBoardHidden(s), true);
+  assertThrows(() => place(s, 0, 0), GameError);
+  s = revealBoard(s);
+  assertEquals(isBoardHidden(s), false);
+  assertThrows(() => revealBoard(s), GameError);
+  s = place(s, 0, 0);
+  s = nextRound(giveUp(s, T0), T0);
+  assertEquals(isBoardHidden(s), true, "hidden again in the next round");
 });
 
 Deno.test("classic: the bid is strict", () => {

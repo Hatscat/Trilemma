@@ -61,11 +61,15 @@ const messages: Messages = {
     deckBase: "Base · 55",
     deckFull: "Complet · 91",
     timer: "Minuteur du mode Classique",
+    pro: "Mode pro",
+    proOff: "Non",
+    proOn: "Oui",
+    proHint: "Le plateau est caché pendant ta réflexion : imagine-le dans ta tête.",
     timerOff: "Aucun",
     timerMinutes: (minutes) => `${minutes} min`,
     language: "Langue",
     howToPlay: "Règles du jeu",
-    records: (fullDeck) => `Records · paquet ${fullDeck ? "complet" : "de base"}`,
+    records: (fullDeck, pro) => `Records · paquet ${fullDeck ? "complet" : "de base"}${pro ? " · pro" : ""}`,
     recordLine: (best, played) => ` meilleur : ${best} (${played} partie${s(played)})`,
     rounds: (n) => `${n} manche${s(n)}`,
     newGameTitle: "Nouvelle partie ?",
@@ -99,6 +103,12 @@ const messages: Messages = {
     seeResults: "Voir le bilan",
     bestGroup: "Meilleur groupe",
     myArrangement: "Ma disposition",
+    proBadge: "Pro",
+    boardHidden: (mode) =>
+      mode === "classic"
+        ? "Mode pro : le plateau apparaît après ton annonce."
+        : "Mode pro : affiche le plateau quand tu veux placer les personnages.",
+    showBoard: "Afficher le plateau",
     searchClassic: "Trouve le plus grand groupe de cartes qui peuvent être vraies en même temps.",
     searchPractice: (target) => `Trouve ${target} cartes qui peuvent être vraies en même temps.`,
     falseCardRetry: (number) => `La carte ${number} est fausse pour cette disposition. Réessaie !`,
@@ -151,7 +161,8 @@ const messages: Messages = {
 
   over: {
     title: "Paquet terminé !",
-    subtitle: (mode, fullDeck) => `${modeName(mode)} · paquet ${fullDeck ? "complet" : "de base"}`,
+    subtitle: (mode, fullDeck, pro) =>
+      `${modeName(mode)}${pro ? " pro" : ""} · paquet ${fullDeck ? "complet" : "de base"}`,
     newBestRounds: "Nouveau record : le moins de manches !",
     newBestTime: "Nouveau record : la partie la plus rapide !",
     rounds: "Manches",
@@ -193,6 +204,10 @@ const messages: Messages = {
       { h2: "Mode Entraînement" },
       {
         p: "La taille du plus grand groupe est annoncée, et tu peux utiliser le plateau pendant ta recherche. Trouve un groupe de cette taille, place les personnages et vérifie. Chaque vérification fausse compte comme une erreur. Tout groupe valide est accepté.",
+      },
+      { h2: "Mode pro" },
+      {
+        p: "Une option pour les joueurs aguerris : le plateau et les personnages sont cachés pendant ta réflexion. En mode Classique, ils apparaissent après ton annonce ; en mode Entraînement, quand tu choisis d’afficher le plateau.",
       },
       { h2: "Lire les cartes" },
       {

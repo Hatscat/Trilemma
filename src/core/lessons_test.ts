@@ -10,7 +10,11 @@ Deno.test("each tutorial lesson has the maximum its texts announce", () => {
 
 Deno.test("a scripted game deals its cards in order and leaves the other slots empty", () => {
   const lesson = LESSONS[0];
-  const state = newScriptedGame({ mode: lesson.mode, deck: "base", timerSeconds: null, seed: 0 }, lesson.cards, 0);
+  const state = newScriptedGame(
+    { mode: lesson.mode, deck: "base", timerSeconds: null, seed: 0, pro: false },
+    lesson.cards,
+    0,
+  );
   assertEquals(tableCards(state), lesson.cards);
   assertEquals(state.table.length, TABLE_SIZE);
   assertEquals(state.table.filter((id) => id === null).length, TABLE_SIZE - lesson.cards.length);

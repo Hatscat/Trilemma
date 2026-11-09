@@ -83,6 +83,9 @@ deployed to GitHub Pages by `.github/workflows/deploy.yml` (custom domain `trile
   - If every demonstration fails, nobody scores and the same face-up cards go back to a new search.
   - Classic mode: the search is mental, as in the tabletop game. Moving characters and selecting cards is only possible
     in the `demonstrate` phase (`canEditBoard` in `game.ts`). Practice mode allows them while searching.
+  - Pro mode (`GameConfig.pro`, fixed when the game starts): the board is hidden while thinking (`isBoardHidden`):
+    Classic until the bid, Practice until `revealBoard` (then for the rest of the round). Pro games keep their own
+    records (`recordKey`). Saves from before pro mode are migrated as normal games (`storage.ts`).
 
 ## Card catalog rules
 

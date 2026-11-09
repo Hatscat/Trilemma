@@ -77,6 +77,7 @@ async function startGame(mode: Mode): Promise<void> {
     mode,
     deck: settings.deck,
     timerSeconds: mode === "classic" ? settings.timerSeconds : null,
+    pro: settings.pro,
     seed: seedFromUrl() ?? randomSeed(),
   }, Date.now()));
   navigate("#/play");
